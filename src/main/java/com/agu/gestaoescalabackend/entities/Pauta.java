@@ -96,7 +96,7 @@ public class Pauta implements Serializable {
      METODOS DE NEGÓCIO
     ------------------------------------------------*/
 
-	public boolean isTheSame(Pauta pauta){
+	public boolean temOMesmoPeriodo(Pauta pauta){
 		return this.sala.equals(pauta.getSala())
 				&& this.data.equals(pauta.getData())
 				&& this.turnoPauta == pauta.getTurnoPauta();
