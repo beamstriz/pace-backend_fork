@@ -98,9 +98,10 @@ public class Pautista implements Serializable, Comparable<Pautista> {
         return true;
     }
 
-    public void atualizarSaldo(int valor){
+    public void atualizarSaldo(int valor, Pauta pauta){
         this.setSaldo(this.getSaldo() + valor);
         this.setSaldoPeso(this.getSaldo() * this.getPeso());
+        this.pautas.add(pauta);
     }
 
 }

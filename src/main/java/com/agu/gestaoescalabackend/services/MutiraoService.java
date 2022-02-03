@@ -19,10 +19,13 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.sql.SQLOutput;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
+@SuppressWarnings("ALL")
 @Service
 @AllArgsConstructor
 public class MutiraoService {
@@ -30,8 +33,6 @@ public class MutiraoService {
 	private MutiraoRepository mutiraoRepository;
 	private PautaRepository pautaRepository;
 	private PautistaRepository pautistaRepository;
-
-//////////////////////////////////   SERVIÇOS   ///////////////////////////////////
 
 	@Transactional(readOnly = true)
 	public List<MutiraoDTO> findAll() {
@@ -87,9 +88,90 @@ public class MutiraoService {
 			mutiraoRepository.deleteById(mutiraoId);
 	}
 
-	/*------------------------------------------------
-     METODOS DE NEGÓCIO
+  	/*------------------------------------------------
+    ESCALA
     ------------------------------------------------*/
+
+	@Transactional
+	public List<PautaDto> gerarEscala(Long mutiraoId, GrupoPautista grupoPautista) { // 24 linhas
+
+		// VERIFICA SE O MUTIRÃO EXISTE OU SE JÁ ESTÁ COM ESCALA
+		Optional<Mutirao> mutirao = mutiraoRepository.findById(mutiraoId);
+		if (!mutirao.isPresent()
+				|| mutirao.get().getStatusPauta().equals(StatusPauta.COM_ESCALA)){
+			return null;}
+
+		// INSTANCIA A LISTA DE OBJETOS
+		List<Pauta> pautaList = pautaRepository.findAllByMutiraoId(mutiraoId);
+		List<Pautista> pautistaList = retornarListaDe(grupoPautista);
+		Pauta ultimaPauta = pautaList.get(0);
+		Pautista pautistaAtual = pegarPautistaDisponivel(pautistaList, ultimaPauta);
+
+		// EFETUA AS OPERAÇÕES PARA CADA PAUTA
+		for (Pauta pautaAtual : pautaList) {
+
+			// VERIFICA SE A SALA, DIA OU TURNO MUDARAM
+			if (ultimaPauta.temOMesmoPeriodo(pautaAtual)) {
+
+				pautaAtual.setPautista(pautistaAtual);
+				pautistaAtual.atualizarSaldo(1, pautaAtual);
+			}
+			else {
+				// REORDENA OS PAUTISTAS POR SALDO
+				Collections.sort(pautistaList);
+
+				pautistaAtual = pegarPautistaDisponivel(pautistaList, pautaAtual);
+				pautaAtual.setPautista(pautistaAtual);
+				pautistaAtual.atualizarSaldo(1, pautaAtual);
+
+				// ATUALIZA A ÚLTIMA PAUTA
+				ultimaPauta = pautaAtual;
+			}
+		}
+
+		// DEFINE O STATUS DO MUTIRAO E SALVA A PAUTA
+		mutirao.get().setStatusPauta(StatusPauta.COM_ESCALA);
+
+		return pautaRepository.saveAll(pautaList)
+				.stream()
+				.map(Pauta::toDto)
+				.collect(Collectors.toList());
+	}
+
+	/*------------------------------------------------
+	 METODOS DA ESCALA
+	------------------------------------------------*/
+
+	private List<Pautista> retornarListaDe(GrupoPautista grupoPautista) {
+		if (grupoPautista.equals(GrupoPautista.PROCURADOR) || grupoPautista.equals(GrupoPautista.PREPOSTO))
+			return pautistaRepository.findAllByGrupoPautistaAndStatusPautistaOrderBySaldoPesoAsc(grupoPautista, StatusPautista.ATIVO);
+		return pautistaRepository.findAllByStatusPautistaOrderBySaldoPesoAsc(
+				StatusPautista.ATIVO);
+	}
+
+	private Pautista pegarPautistaDisponivel(List<Pautista> pautistaList, Pauta pautaAtual) {
+
+		// BUSCA POR UM PAUTISTA DISPONÍVEL E QUE NÃO TRABALHOU NO DIA ANTERIOR
+		for (Pautista pautista : pautistaList) {
+			if (pautista.estaDisponivel(pautaAtual.getData())){
+				if (pautista.estaDisponivel(pautaAtual.getData().minusDays(1))){
+					return pautista;
+				}
+			}
+		}
+
+		// BUSCA SOMENTE POR UM PAUTISTA DISPONÍVEL
+		for (Pautista pautista : pautistaList) {
+			if (pautista.estaDisponivel(pautaAtual.getData())) {
+				return pautista;
+			}
+		}
+		return null;
+	}
+
+	/*------------------------------------------------
+	 METODOS DE NEGÓCIO
+	------------------------------------------------*/
 
 	@Transactional
 	public List<PautaDto> atualizarProcurador(Long pautaDeAudienciaId, Long procuradorId) {
@@ -115,120 +197,6 @@ public class MutiraoService {
 				.collect(Collectors.toList());
 	}
 
-//////////////////////////////////    ESCALA    ///////////////////////////////////
-
-	@Transactional
-	public List<PautaDto> gerarEscala(Long mutiraoId, GrupoPautista grupoPautista) { // 24 linhas
-
-		// INSTANCIA A LISTA DE OBJETOS
-		List<Pauta> pautaList = pautaRepository.findAllByMutiraoId(mutiraoId);
-		List<Pautista> procuradorList = retornarListaDe(
-				GrupoPautista.PROCURADOR);
-		List<Pautista> prepostoList = retornarListaDe(
-				GrupoPautista.PREPOSTO);
-		List<Pautista> pautistaList = pautistaRepository.findAllByStatusPautistaOrderBySaldoPesoAsc(
-				StatusPautista.ATIVO);
-
-		System.out.println("--------------");
-		System.out.println();
-
-		pautistaList
-				.forEach(pautista -> {
-
-					System.out.println("Pautista - "+pautista.getNome()+" "+pautista.getSaldoPeso());
-				});
-
-		// ----------------
-		String tipoDoUltimoPautistaInserido = "Nenhum";
-		boolean repetiuPautista = false;
-
-		definirStatusMutiraoParaSemEscala(mutiraoId);
-
-		// Inicializa as informações da pauta
-		Pauta pautaVerificada = pautaList.get(0);
-
-		// percorre a lista para inserir e salvar no banco o procurador
-		for (Pauta pautaAtual : pautaList) {
-
-			// Verifica se a sala, dia ou turno mudaram
-			if (pautaVerificada.isTheSame(pautaAtual)) {
-
-				tipoDoUltimoPautistaInserido = validarInserçãoDePautista(pautaAtual, procuradorList,
-						prepostoList, pautistaList, repetiuPautista, grupoPautista);
-			} else {
-
-				// Ordena apenas a lista dos procuradores
-				switch (tipoDoUltimoPautistaInserido) {
-					case "Procurador":
-						repetiuPautista = reordenarPautista(procuradorList, repetiuPautista, grupoPautista);
-
-						// Ordena apenas a lista dos prepostos
-						break;
-					case "Preposto":
-						repetiuPautista = reordenarPautista(prepostoList, repetiuPautista, grupoPautista);
-
-						break;
-					case "Todos":
-						repetiuPautista = reordenarPautista(pautistaList, repetiuPautista, grupoPautista);
-						break;
-				}
-
-				// Atribui para a salaLista a sala corrente
-				pautaVerificada = pautaAtual;
-
-				validarInserçãoDePautista(pautaAtual, procuradorList, prepostoList, pautistaList, repetiuPautista, grupoPautista);
-			}
-		}
-
-		return pautaRepository.findAllByMutiraoId(mutiraoId)
-				.stream()
-				.map(Pauta::toDto)
-				.collect(Collectors.toList());
-	}
-
-//////////////////////////////////    MÉTODOS    ///////////////////////////////////
-
-	private boolean reordenarPautista(List<Pautista> listaPautista, boolean repetiuPautista, GrupoPautista grupoPautista) {
-		String nomeAntigo;
-		int marcador = 0;
-
-		if (repetiuPautista) {
-			marcador = 1;
-		}
-
-		nomeAntigo = listaPautista.get(marcador).getNome();
-
-		// Reordena a lista
-		Collections.sort(listaPautista);
-
-		// Verifica se o novo pautista é igual ao último antes da reordenação
-		return (nomeAntigo.equals(listaPautista.get(0).getNome()));
-	}
-
-	private String validarInserçãoDePautista(Pauta pautaAtual, List<Pautista> listaProcurador,
-											 List<Pautista> listaPreposto, List<Pautista> listaPautista, boolean repetiuPautista, GrupoPautista grupoPautista) {
-
-		// O MARCADOR SERVE PARA PEGAR O PRÓXIMO PAUTISTA, CASO IDENTIFIQUE QUE O PAUTISTA REPETIU
-
-		int pautistaIndex = 0;
-		if (repetiuPautista) {
-			pautistaIndex = 1;
-		}
-			if (grupoPautista.equals(GrupoPautista.PROCURADOR)) {
-				definirPautista(listaProcurador.get(pautistaIndex), pautaAtual);
-				return "Procurador";
-				
-			} else if (grupoPautista.equals(GrupoPautista.PREPOSTO)){
-
-				definirPautista(listaPreposto.get(pautistaIndex), pautaAtual);
-				return "Preposto";
-				
-			} else {
-				definirPautista(listaPautista.get(pautistaIndex), pautaAtual);
-				return "Todos";
-			}
-	}
-
 	private boolean validarCriacao(MutiraoDTO mutiraoDto) {
 		return (!mutiraoRepository.existsByVaraAndDataInicialAndDataFinal(mutiraoDto.getVara(), mutiraoDto.getDataInicial(),
 				mutiraoDto.getDataFinal()))
@@ -244,27 +212,80 @@ public class MutiraoService {
 
 	}
 
-	private List<Pautista> retornarListaDe(GrupoPautista grupoPautista) {
-		return pautistaRepository.findAllByGrupoPautistaAndStatusPautistaOrderBySaldoPesoAsc(grupoPautista, StatusPautista.ATIVO);
-	}
+	/*------------------------------------------------
+	 METODOS DE COMENTÁRIOS
+	------------------------------------------------*/
 
-	private void definirStatusMutiraoParaSemEscala(Long mutiraoId) {
-		Mutirao mutirao = mutiraoRepository.findById(mutiraoId).get();
-		mutirao.setStatusPauta(StatusPauta.COM_ESCALA);
-		mutiraoRepository.save(mutirao);
-	}
-
-	private void definirPautista(Pautista pautistaAtual, Pauta pautaAtual) {
-		// Seta na pauta o procurador na posição especificada e incrementa seu saldo
-
-		pautaAtual.setPautista(pautistaAtual);
-		pautistaAtual.setSaldo(pautistaAtual.getSaldo() + 1);
-		pautistaAtual.setSaldoPeso(pautistaAtual.getSaldo() * pautistaAtual.getPeso());
-
-		// Salva a pauta e o procurador com o saldo atualizado no banco
-		pautistaRepository.save(pautistaAtual);
-		pautaRepository.save(pautaAtual);
-	}
+//	private void ExibirListaPautista(List<Pautista> pautistaList) {
+//		Titulo("Exibir Lista Ordenada");
+//		pautistaList
+//				.forEach(
+//						pautista -> {
+//							System.out.println(pautista.getSaldo() + " | " + pautista.getNome());
+//						}
+//				);
+//	}
+//	private void Titulo(String s) {
+//		System.out.println();
+//		System.out.println("----- " + s);
+//		System.out.println();
+//	}
+//
+//	private Pautista pegarPautistaDisponivel(List<Pautista> pautistaList, Pauta pautaAtual) {
+//
+//		Titulo("Buscando Pautista");
+//		System.out.println("- Data "+pautaAtual.getData());
+//		System.out.println("- Sala "+pautaAtual.getSala());
+//		System.out.println("- Turno "+pautaAtual.getTurnoPauta());
+//		System.out.println("- Vara "+pautaAtual.getVara());
+//		System.out.println();
+//
+//		// BUSCA POR UM PAUTISTA DISPONÍVEL E QUE NÃO TRABALHOU NO DIA ANTERIOR
+//		for (Pautista pautista : pautistaList) {
+//			System.out.println();
+//			System.out.println(pautista.getNome());
+//			pautista.getPautas().forEach(
+//					pauta -> {
+//						System.out.println("  "+pauta.getData());
+//					}
+//			);
+//
+//			if (pautista.estaDisponivel(pautaAtual.getData())){
+//				System.out.println("    - Está livre");
+//				if (pautista.estaDisponivel(pautaAtual.getData().minusDays(1))){
+//					System.out.println("    - Está com folga");
+//					return pautista;
+//				} else {
+//					System.out.println("    - Não está com folga");
+//				}
+//			}else{
+//				System.out.println("    - Ocupado");
+//			}
+//		}
+//
+//		System.out.println();
+//		System.out.println("!BUSCA PESADA!");
+//
+//		// BUSCA SOMENTE POR UM PAUTISTA DISPONÍVEL
+//		for (Pautista pautista : pautistaList) {
+//			System.out.println();
+//			System.out.println(pautista.getNome());
+//			pautista.getPautas().forEach(
+//					pauta -> {
+//						System.out.println("  "+pauta.getData());
+//					}
+//			);
+//
+//			System.out.println(" Pautista "+pautista.getNome());
+//			if (pautista.estaDisponivel(pautaAtual.getData())) {
+//				System.out.println("    - Está livre");
+//				return pautista;
+//			} else {
+//				System.out.println("    - Ocupado");
+//			}
+//		}
+//		return null;
+//	}
 	
 
 }
