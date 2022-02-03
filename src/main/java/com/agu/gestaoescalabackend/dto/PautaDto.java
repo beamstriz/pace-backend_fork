@@ -44,7 +44,6 @@ public class PautaDto implements Serializable {
 	private String nomeParte;
 	@CPF
 	private String cpf;
-	@NotBlank
 	private String nomeAdvogado;
 	private String objeto;
 
