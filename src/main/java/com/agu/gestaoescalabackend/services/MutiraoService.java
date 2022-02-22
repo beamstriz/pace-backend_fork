@@ -61,12 +61,11 @@ public class MutiraoService {
 	}
 
 	@Transactional
-	public MutiraoDTO save(MutiraoDTO mutiraoDto) {
+	public MutiraoDTO save(List<PautaDto> pautaDtoList) {
 
-		if (!validarCriacao(mutiraoDto))
-			return null;
+		Mutirao mutirao = new Mutirao();
+		mutirao.forSave(pautaDtoList);
 
-		Mutirao mutirao = mutiraoDto.toEntity();
 		return mutiraoRepository.save(mutirao).toDto();
 	}
 
@@ -195,12 +194,6 @@ public class MutiraoService {
 				.stream()
 				.map(Pauta::toDto)
 				.collect(Collectors.toList());
-	}
-
-	private boolean validarCriacao(MutiraoDTO mutiraoDto) {
-		return (!mutiraoRepository.existsByVaraAndDataInicialAndDataFinal(mutiraoDto.getVara(), mutiraoDto.getDataInicial(),
-				mutiraoDto.getDataFinal()))
-				&& (mutiraoDto.getDataInicial() != null || mutiraoDto.getDataFinal() != null);
 	}
 
 	private void atualizarVaraPautas(Long mutiraoId, String vara) {

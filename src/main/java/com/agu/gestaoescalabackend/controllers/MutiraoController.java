@@ -39,8 +39,8 @@ public class MutiraoController {
 	}
 
 	@PostMapping
-	public ResponseEntity<MutiraoDTO> salvar(@RequestBody MutiraoDTO mutiraoDto) {
-		mutiraoDto = mutiraoService.save(mutiraoDto);
+	public ResponseEntity<MutiraoDTO> salvar(@RequestBody List<PautaDto> pautaDtoList) {
+		MutiraoDTO mutiraoDto = mutiraoService.save(pautaDtoList);
 		if (mutiraoDto != null)
 			return ResponseEntity.ok().body(mutiraoDto);
 		else

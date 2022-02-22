@@ -1,6 +1,7 @@
 package com.agu.gestaoescalabackend.entities;
 
 import com.agu.gestaoescalabackend.dto.MutiraoDTO;
+import com.agu.gestaoescalabackend.dto.PautaDto;
 import com.agu.gestaoescalabackend.enums.StatusPauta;
 import com.agu.gestaoescalabackend.util.Conversor;
 import lombok.AllArgsConstructor;
@@ -11,6 +12,7 @@ import lombok.Setter;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.util.List;
 
 @Entity
 @Table(name = "tb_mutirao")
@@ -52,7 +54,15 @@ public class Mutirao implements Serializable {
     METODOS DE CRUD
     ------------------------------------------------*/
 
-	public Mutirao forSave(){
+	public Mutirao forSave(List<PautaDto> pautaDtoList){
+
+		this.statusPauta = StatusPauta.SEM_ESCALA;
+		this.vara = pautaDtoList.get(0).getVara();
+		this.dataInicial = pautaDtoList.get(0).getData();
+		this.dataFinal = pautaDtoList.get(pautaDtoList.size() - 1).getData();
+
+		this.quantidaDePautas = 0;
+
 		return this;
 	}
 
