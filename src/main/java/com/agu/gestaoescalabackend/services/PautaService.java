@@ -48,7 +48,7 @@ public class PautaService {
 
 	@Transactional
 	public List<PautaDto> save(List<PautaDto> listaPautaDto) {
-		
+
 		Mutirao mutirao = mutiraoService.save(listaPautaDto).toEntity();
 
 		for (PautaDto pautaDto : listaPautaDto) {
@@ -57,17 +57,13 @@ public class PautaService {
 			pauta.setMutirao(mutirao);
 
 			if (validarCriacao(pautaDto, pauta)) {
-				mutirao.setQuantidaDePautas(mutirao.getQuantidaDePautas() + 1);
 				pautaRepository.save(pauta).toDto();
 			}
 		}
-		mutiraoService.update(mutirao.getId(),mutirao.toDto());
-
 		return pautaRepository.findAllByMutiraoId(mutirao.getId())
 				.stream()
 				.map(Pauta::toDto)
 				.collect(Collectors.toList());
-
 	}
 
 	@Transactional

@@ -8,6 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.Formula;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -31,6 +32,7 @@ public class Mutirao implements Serializable {
 	private StatusPauta statusPauta;
 
 	// ATRIBUTOS DE REGISTRO
+	@Formula("(select count(*) FROM tb_pauta s WHERE s.mutirao_id = id)")
 	private Integer quantidaDePautas;
 
 	// ATRIBUTOS PADRÃO
