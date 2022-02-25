@@ -85,7 +85,6 @@ public class Pauta implements Serializable {
 		this.nomeAdvogado = pautaDto.getNomeAdvogado();
 		this.objeto = pautaDto.getObjeto();
 
-		this.vara = pautaDto.getVara();
 		this.tipoPauta = pautaDto.getTipoPauta();
 		this.turnoPauta = pautaDto.getTurnoPauta();
 

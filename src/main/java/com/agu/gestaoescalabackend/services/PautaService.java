@@ -69,15 +69,12 @@ public class PautaService {
 	@Transactional
 	public PautaDto editar(Long pautaDeAudienciaId, PautaDto pautaDto) {
 
-		List<Mutirao> mutirao = mutiraoRepository.findByVara(pautaDto.getVara());
-
 		Optional<Pauta> pautaOptional = pautaRepository.findById(pautaDeAudienciaId);
 
 		if (pautaOptional.isEmpty())
 			return null;
 		
 		Pauta pauta = pautaOptional.get().forUpdate(pautaDto);
-		inserirMutirao(mutirao, pauta);
 
 		pauta = pautaRepository.save(pauta);
 		return pauta.toDto();
@@ -85,34 +82,22 @@ public class PautaService {
 
 	@Transactional
 	public void excluir(Long pautaDeAudienciaId) {
-		if (pautaRepository.existsById(pautaDeAudienciaId))
+		if (pautaRepository.existsById(pautaDeAudienciaId)){
+
+			Optional<Pauta> pautaOptional = pautaRepository.findById(pautaDeAudienciaId);
+			if(pautaOptional.isPresent()){
+				Integer quantidadeDePautas = pautaOptional.get().getMutirao().getQuantidaDePautas();
+				if (quantidadeDePautas == 1){
+					mutiraoRepository.deleteById(pautaOptional.get().getMutirao().getId());
+				}
+			}
 			pautaRepository.deleteById(pautaDeAudienciaId);
+		}
 	}
 
 	/*------------------------------------------------
      METODOS DO MUTIRAO
     ------------------------------------------------*/
-
-	public void inserirMutirao(List<Mutirao> mutirao,
-							   Pauta pauta) {
-		int x = 0;
-		// Faça enquanto estiver dentro do tamanho do multirão (OU) enquanto o multirão
-		// for nulo
-		while ((x < mutirao.size()) || (mutirao == null)) {
-
-			LocalDate dataInicialMutirao = mutirao.get(x).getDataInicial().minusDays(1);
-			LocalDate dataFinalMutirao = mutirao.get(x).getDataFinal().plusDays(1);
-
-			if (dataInicialMutirao.isBefore(pauta.getData())
-					&& dataFinalMutirao.isAfter(pauta.getData())) {
-				// Se a condição das datas for verdadeira, seta na pauta o multirão corrente
-				pauta.setMutirao(mutirao.get(x));
-				break;
-
-			}
-			x++;
-		}
-	}
 
 	private boolean validarCriacao(PautaDto pautaDto, Pauta pauta) {
 		// Instancia um objeto base para verificar se já existe um registro 'nome'
