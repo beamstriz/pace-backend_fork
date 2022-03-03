@@ -4,5 +4,5 @@ public enum StatusPautista {
     ATIVO,
     INATIVO,
     FÉRIAS,
-    LICENSA
+    LICENÇA
 }

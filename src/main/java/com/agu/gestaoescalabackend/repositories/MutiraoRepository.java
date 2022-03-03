@@ -6,14 +6,11 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
-import java.time.LocalDate;
 import java.util.List;
 
 @Repository
 public interface MutiraoRepository extends JpaRepository<Mutirao, Long> {
 	List<Mutirao> findAllByOrderByIdAsc();
-	List<Mutirao> findByVara(String vara);
-	boolean  existsByVaraAndDataInicialAndDataFinal(String vara, LocalDate dataInicial, LocalDate dataFinal);
 
 	@Modifying
 	@Query(

@@ -19,7 +19,6 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.sql.SQLOutput;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -83,8 +82,14 @@ public class MutiraoService {
 
 	@Transactional
 	public void excluir(Long mutiraoId) {
-		if (mutiraoRepository.existsById(mutiraoId))
+		if (mutiraoRepository.existsById(mutiraoId)){
+			Optional<Mutirao> mutirao = mutiraoRepository.findById(mutiraoId);
+			if (mutirao.isPresent()){
+				List<Pauta> pautaList = pautaRepository.findAllByMutiraoId(mutiraoId);
+				pautaRepository.deleteAll(pautaList);
+			}
 			mutiraoRepository.deleteById(mutiraoId);
+		}
 	}
 
   	/*------------------------------------------------
