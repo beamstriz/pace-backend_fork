@@ -9,6 +9,11 @@ import com.agu.gestaoescalabackend.repositories.MutiraoRepository;
 import com.agu.gestaoescalabackend.repositories.PautaRepository;
 import com.agu.gestaoescalabackend.repositories.PautistaRepository;
 import lombok.AllArgsConstructor;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,12 +35,15 @@ public class PautaService {
 //////////////////////////////////   SERVIÇOS   ///////////////////////////////////
 
 	@Transactional(readOnly = true)
-	public List<PautaDto> findAll() {
-
-		return pautaRepository.findAllByOrderByIdAsc()
-				.stream()
-				.map(Pauta::toDto)
-				.collect(Collectors.toList());
+	public Page<PautaDto> findAll(int page, int size) {
+		Pageable pageable = PageRequest.of(page, size);
+		int totalPages = pautaRepository.findAll(pageable).getTotalPages();
+		List<PautaDto> response = pautaRepository.findAll(pageable)
+		.stream()
+		.map(Pauta::toDto)
+		.collect(Collectors.toList());
+			return new PageImpl<PautaDto>(response);
+			
 	}
 
 	@Transactional(readOnly = true)

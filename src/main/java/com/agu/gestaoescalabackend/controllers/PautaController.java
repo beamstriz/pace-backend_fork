@@ -4,6 +4,8 @@ import com.agu.gestaoescalabackend.dto.PautaDto;
 import com.agu.gestaoescalabackend.repositories.PautaRepository;
 import com.agu.gestaoescalabackend.services.PautaService;
 import lombok.AllArgsConstructor;
+
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,9 +26,9 @@ public class PautaController {
 	private PautaRepository pautaRepository;
 
 	@GetMapping
-	public ResponseEntity<List<PautaDto>> findAll() {
+	public ResponseEntity<Page<PautaDto>> findAll(@RequestParam int page, @RequestParam int size) {
 		return ResponseEntity.ok(
-				pautaService.findAll());
+				pautaService.findAll(page, size));
 	}
 
 	@GetMapping("/{pautaDeAudienciaId}")

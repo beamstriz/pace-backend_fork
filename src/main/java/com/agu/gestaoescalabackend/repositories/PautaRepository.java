@@ -3,6 +3,9 @@ package com.agu.gestaoescalabackend.repositories;
 import com.agu.gestaoescalabackend.entities.Pauta;
 import com.agu.gestaoescalabackend.enums.TipoPauta;
 import com.agu.gestaoescalabackend.enums.TurnoPauta;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -21,6 +24,8 @@ public interface PautaRepository extends JpaRepository<Pauta, Long> {
 	List<Pauta> findAllByMutiraoId(Long mutirao_id);
 
 	List<Pauta> findAllByOrderByIdAsc();
+
+	Page<Pauta> findAll(Pageable pageable);
 
 	@Modifying
 	@Query(
