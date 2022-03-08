@@ -27,14 +27,15 @@ public interface PautaRepository extends JpaRepository<Pauta, Long> {
 
 	List<Pauta> findAllByOrderByIdAsc();
 
-	Page<Pauta> findAllByOrderByIdAsc(Pageable pageable);
+	@Query("SELECT pauta FROM Pauta pauta WHERE (:hora is null or pauta.hora = :hora) AND (:vara is null or pauta.vara = :vara) AND (:sala is null or pauta.sala = :sala) AND (:pautista is null or pauta.pautista = :pautista) AND pauta.pautista is not null AND (pauta.data BETWEEN :dataInicial AND :dataFinal) Order by pauta.id ASC")
+	Page<Pauta> findAllByHoraAndVaraAndSalaAndPautistaAndDataBetween(String hora, String vara, String sala,
+			Pautista pautista, LocalDate dataInicial, LocalDate dataFinal, Pageable pageable);
 
-	Page<Pauta> findAllByHoraAndVaraAndSalaAndPautistaAndDataBetween(String hora, String vara, String sala, Pautista pautista, LocalDate dataInicial, LocalDate dataFinal, Pageable pageable);
+	@Query("SELECT pauta FROM Pauta pauta WHERE (:hora is null or pauta.hora = :hora) AND (:vara is null or pauta.vara = :vara) AND (:sala is null or pauta.sala = :sala) AND (:pautista is null or pauta.pautista = :pautista) AND pauta.pautista is not null ORDER BY pauta.id ASC")
+	Page<Pauta> findAllByHoraAndVaraAndSalaAndPautista(String hora, String vara, String sala, Pautista pautista,
+			Pageable pageable);
 
 	@Modifying
-	@Query(
-			value = "TRUNCATE TABLE tb_pauta RESTART IDENTITY CASCADE;",
-			nativeQuery = true
-	)
+	@Query(value = "TRUNCATE TABLE tb_pauta RESTART IDENTITY CASCADE;", nativeQuery = true)
 	void truncateTable();
 }

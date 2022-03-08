@@ -28,19 +28,23 @@ public class PautaController {
 	private PautaRepository pautaRepository;
 
 	@GetMapping
-	public ResponseEntity<List<PautaDto>> findAll(@RequestParam int page, @RequestParam int size) {
-		HttpHeaders headers = new HttpHeaders();
-		headers.add("maxPages", Integer.toString(pautaService.getMaxIndex(page, size)));
-		List<PautaDto> response = pautaService.findAll(page, size);
-		return new ResponseEntity<>(response, headers, HttpStatus.OK);
+	public ResponseEntity<List<PautaDto>> findAll() {
+		List<PautaDto> response = pautaService.findAll();
+		return ResponseEntity.ok(response);
 	}
 
 	@GetMapping("/filtro")
-	public ResponseEntity<List<PautaDto>> findByFilters(@RequestParam(required = false) String hora, @RequestParam(required = false) String vara,
-			@RequestParam(required = false) String sala, @RequestParam(required = false) long pautista, @RequestParam(required = false) String dataInicial,
+	public ResponseEntity<List<PautaDto>> findByFilters(@RequestParam(required = false) String hora,
+			@RequestParam(required = false) String vara,
+			@RequestParam(required = false) String sala, @RequestParam(required = false) Long pautista,
+			@RequestParam(required = false) String dataInicial,
 			@RequestParam(required = false) String dataFinal, @RequestParam int page, @RequestParam int size) {
-				List<PautaDto> response = pautaService.findByFilters(hora, vara, sala, pautista, dataInicial, dataFinal, page, size);
-				return ResponseEntity.ok(response);
+		HttpHeaders headers = new HttpHeaders();
+		int maxPages = pautaService.getMaxIndex(hora, vara, sala, pautista, dataInicial, dataFinal, page, size);
+		headers.add("maxPages", Integer.toString(maxPages));
+		List<PautaDto> response = pautaService.findByFilters(hora, vara, sala, pautista, dataInicial, dataFinal, page,
+				size);
+		return new ResponseEntity<>(response, headers, HttpStatus.OK);
 	}
 
 	@GetMapping("/{pautaDeAudienciaId}")
