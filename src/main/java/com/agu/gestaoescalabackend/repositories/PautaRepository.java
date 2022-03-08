@@ -1,6 +1,7 @@
 package com.agu.gestaoescalabackend.repositories;
 
 import com.agu.gestaoescalabackend.entities.Pauta;
+import com.agu.gestaoescalabackend.entities.Pautista;
 import com.agu.gestaoescalabackend.enums.TipoPauta;
 import com.agu.gestaoescalabackend.enums.TurnoPauta;
 
@@ -11,6 +12,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.Date;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -25,7 +27,9 @@ public interface PautaRepository extends JpaRepository<Pauta, Long> {
 
 	List<Pauta> findAllByOrderByIdAsc();
 
-	Page<Pauta> findAll(Pageable pageable);
+	Page<Pauta> findAllByOrderByIdAsc(Pageable pageable);
+
+	Page<Pauta> findAllByHoraAndVaraAndSalaAndPautistaAndDataBetween(String hora, String vara, String sala, Pautista pautista, LocalDate dataInicial, LocalDate dataFinal, Pageable pageable);
 
 	@Modifying
 	@Query(

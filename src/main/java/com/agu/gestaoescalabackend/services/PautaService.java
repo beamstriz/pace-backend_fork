@@ -4,6 +4,7 @@ import com.agu.gestaoescalabackend.dto.MutiraoDTO;
 import com.agu.gestaoescalabackend.dto.PautaDto;
 import com.agu.gestaoescalabackend.entities.Mutirao;
 import com.agu.gestaoescalabackend.entities.Pauta;
+import com.agu.gestaoescalabackend.entities.Pautista;
 import com.agu.gestaoescalabackend.enums.StatusPauta;
 import com.agu.gestaoescalabackend.repositories.MutiraoRepository;
 import com.agu.gestaoescalabackend.repositories.PautaRepository;
@@ -17,8 +18,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -32,18 +36,38 @@ public class PautaService {
 	private MutiraoRepository mutiraoRepository;
 	private MutiraoService mutiraoService;
 
-//////////////////////////////////   SERVIÇOS   ///////////////////////////////////
+	////////////////////////////////// SERVIÇOS ///////////////////////////////////
 
 	@Transactional(readOnly = true)
-	public Page<PautaDto> findAll(int page, int size) {
+	public List<PautaDto> findAll(int page, int size) {
 		Pageable pageable = PageRequest.of(page, size);
-		int totalPages = pautaRepository.findAll(pageable).getTotalPages();
-		List<PautaDto> response = pautaRepository.findAll(pageable)
-		.stream()
-		.map(Pauta::toDto)
-		.collect(Collectors.toList());
-			return new PageImpl<PautaDto>(response);
-			
+		return pautaRepository.findAllByOrderByIdAsc(pageable)
+				.stream()
+				.map(Pauta::toDto)
+				.collect(Collectors.toList());
+	}
+
+	@Transactional(readOnly = true)
+	public int getMaxIndex(int page, int size) {
+		Pageable pageable = PageRequest.of(page, size);
+		return pautaRepository.findAll(pageable).getTotalPages();
+	}
+
+	@Transactional(readOnly = true)
+	public List<PautaDto> findByFilters(String hora, String vara, String sala, long pautista, String dataInicial,
+			String dataFinal, int page, int size) {
+		Pageable pageable = PageRequest.of(page, size);
+		Optional<Pautista> pautistaResp = pautistaRepository.findById(pautista);
+		LocalDate inicial = LocalDate.parse(dataInicial);
+		LocalDate finall = LocalDate.parse(dataFinal);
+		return pautaRepository
+				.findAllByHoraAndVaraAndSalaAndPautistaAndDataBetween(hora, vara, sala, pautistaResp.get(), inicial,
+						finall,
+						pageable)
+				.stream()
+				.map(Pauta::toDto)
+				.collect(Collectors.toList());
+
 	}
 
 	@Transactional(readOnly = true)
@@ -81,7 +105,7 @@ public class PautaService {
 
 		if (pautaOptional.isEmpty())
 			return null;
-		
+
 		Pauta pauta = pautaOptional.get().forUpdate(pautaDto);
 
 		pauta = pautaRepository.save(pauta);
@@ -90,12 +114,12 @@ public class PautaService {
 
 	@Transactional
 	public void excluir(Long pautaDeAudienciaId) {
-		if (pautaRepository.existsById(pautaDeAudienciaId)){
+		if (pautaRepository.existsById(pautaDeAudienciaId)) {
 
 			Optional<Pauta> pautaOptional = pautaRepository.findById(pautaDeAudienciaId);
-			if(pautaOptional.isPresent()){
+			if (pautaOptional.isPresent()) {
 				Integer quantidadeDePautas = pautaOptional.get().getMutirao().getQuantidaDePautas();
-				if (quantidadeDePautas == 1){
+				if (quantidadeDePautas == 1) {
 					mutiraoRepository.deleteById(pautaOptional.get().getMutirao().getId());
 				}
 			}
@@ -104,8 +128,8 @@ public class PautaService {
 	}
 
 	/*------------------------------------------------
-     METODOS DO MUTIRAO
-    ------------------------------------------------*/
+	 METODOS DO MUTIRAO
+	------------------------------------------------*/
 
 	private boolean validarCriacao(PautaDto pautaDto, Pauta pauta) {
 		// Instancia um objeto base para verificar se já existe um registro 'nome'
