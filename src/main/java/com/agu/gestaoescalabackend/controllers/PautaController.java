@@ -40,8 +40,9 @@ public class PautaController {
 			@RequestParam(required = false) String dataInicial,
 			@RequestParam(required = false) String dataFinal, @RequestParam int page, @RequestParam int size) {
 		HttpHeaders headers = new HttpHeaders();
-		int maxPages = pautaService.getMaxIndex(hora, vara, sala, pautista, dataInicial, dataFinal, page, size);
-		headers.add("maxPages", Integer.toString(maxPages));
+		Long maxPages = pautaService.getMaxIndex(hora, vara, sala, pautista, dataInicial, dataFinal, page, size);
+		headers.add("maxPages", Long.toString(maxPages));
+		headers.add("Access-Control-Expose-Headers", "maxPages");
 		List<PautaDto> response = pautaService.findByFilters(hora, vara, sala, pautista, dataInicial, dataFinal, page,
 				size);
 		return new ResponseEntity<>(response, headers, HttpStatus.OK);

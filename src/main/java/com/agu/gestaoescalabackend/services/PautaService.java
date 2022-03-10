@@ -47,7 +47,7 @@ public class PautaService {
 	}
 
 	@Transactional(readOnly = true)
-	public int getMaxIndex(String hora, String vara, String sala, Long pautista, String dataInicial,
+	public long getMaxIndex(String hora, String vara, String sala, Long pautista, String dataInicial,
 			String dataFinal, int page, int size) {
 		Pageable pageable = PageRequest.of(page, size);
 		Pautista pautistaResponse = null;
@@ -63,12 +63,12 @@ public class PautaService {
 					.findAllByHoraAndVaraAndSalaAndPautistaAndDataBetween(hora, vara, sala, pautistaResponse, inicial,
 							finall,
 							pageable)
-					.getTotalPages();
+					.getTotalElements();
 		} else {
 			return pautaRepository
 					.findAllByHoraAndVaraAndSalaAndPautista(hora, vara, sala, pautistaResponse,
 							pageable)
-					.getTotalPages();
+					.getTotalElements();
 		}
 	}
 
