@@ -1,12 +1,10 @@
 package com.agu.gestaoescalabackend.controllers;
 
 import com.agu.gestaoescalabackend.dto.PautaDto;
-import com.agu.gestaoescalabackend.entities.Pauta;
 import com.agu.gestaoescalabackend.repositories.PautaRepository;
 import com.agu.gestaoescalabackend.services.PautaService;
 import lombok.AllArgsConstructor;
 
-import org.springframework.data.domain.Page;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -41,8 +39,8 @@ public class PautaController {
 			@RequestParam(required = false) String dataFinal, @RequestParam int page, @RequestParam int size) {
 		HttpHeaders headers = new HttpHeaders();
 		Long maxPages = pautaService.getMaxIndex(hora, vara, sala, pautista, dataInicial, dataFinal, page, size);
-		headers.add("maxPages", Long.toString(maxPages));
-		headers.add("Access-Control-Expose-Headers", "maxPages");
+		headers.add("maxElements", Long.toString(maxPages));
+		headers.add("Access-Control-Expose-Headers", "maxElements");
 		List<PautaDto> response = pautaService.findByFilters(hora, vara, sala, pautista, dataInicial, dataFinal, page,
 				size);
 		return new ResponseEntity<>(response, headers, HttpStatus.OK);
