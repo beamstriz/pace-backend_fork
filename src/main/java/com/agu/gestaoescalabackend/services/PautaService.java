@@ -7,8 +7,11 @@ import com.agu.gestaoescalabackend.entities.Pautista;
 import com.agu.gestaoescalabackend.repositories.MutiraoRepository;
 import com.agu.gestaoescalabackend.repositories.PautaRepository;
 import com.agu.gestaoescalabackend.repositories.PautistaRepository;
+import com.agu.gestaoescalabackend.util.PageResponse;
+
 import lombok.AllArgsConstructor;
 
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -39,58 +42,29 @@ public class PautaService {
 	}
 
 	@Transactional(readOnly = true)
-	public long getMaxIndex(String hora, String vara, String sala, Long pautista, String dataInicial,
+	public PageResponse findByFilters(String hora, String vara, String sala, Long pautista, String dataInicial,
 			String dataFinal, int page, int size) {
 		Pageable pageable = PageRequest.of(page, size);
 		Pautista pautistaResponse = null;
+		Page<Pauta> pautas;
+		Long maxElements;
 		if (pautista != null) {
-			pautistaResponse = pautistaRepository.findById(pautista).isPresent()
-					? pautistaRepository.findById(pautista).get()
-					: null;
+			pautistaResponse = pautistaRepository.findById(pautista).orElse(null);
 		}
 		if (dataInicial != null && dataFinal != null) {
 			LocalDate inicial = LocalDate.parse(dataInicial);
 			LocalDate finall = LocalDate.parse(dataFinal);
-			return pautaRepository
-					.findAllByHoraAndVaraAndSalaAndPautistaAndDataBetween(hora, vara, sala, pautistaResponse, inicial,
-							finall,
-							pageable)
-					.getTotalElements();
+			pautas = pautaRepository.findAllByHoraAndVaraAndSalaAndPautistaAndDataBetween(hora, vara, sala,
+					pautistaResponse, inicial,
+					finall,
+					pageable);
+			maxElements = pautas.getTotalElements();
+			return new PageResponse(pautas.stream().map(Pauta::toDto).collect(Collectors.toList()), maxElements);
 		} else {
-			return pautaRepository
-					.findAllByHoraAndVaraAndSalaAndPautista(hora, vara, sala, pautistaResponse,
-							pageable)
-					.getTotalElements();
-		}
-	}
-
-	@Transactional(readOnly = true)
-	public List<PautaDto> findByFilters(String hora, String vara, String sala, Long pautista, String dataInicial,
-			String dataFinal, int page, int size) {
-		Pageable pageable = PageRequest.of(page, size);
-		Pautista pautistaResponse = null;
-		if (pautista != null) {
-			pautistaResponse = pautistaRepository.findById(pautista).isPresent()
-					? pautistaRepository.findById(pautista).get()
-					: null;
-		}
-		if (dataInicial != null && dataFinal != null) {
-			LocalDate inicial = LocalDate.parse(dataInicial);
-			LocalDate finall = LocalDate.parse(dataFinal);
-			return pautaRepository
-					.findAllByHoraAndVaraAndSalaAndPautistaAndDataBetween(hora, vara, sala, pautistaResponse, inicial,
-							finall,
-							pageable)
-					.stream()
-					.map(Pauta::toDto)
-					.collect(Collectors.toList());
-		} else {
-			return pautaRepository
-					.findAllByHoraAndVaraAndSalaAndPautista(hora, vara, sala, pautistaResponse,
-							pageable)
-					.stream()
-					.map(Pauta::toDto)
-					.collect(Collectors.toList());
+			pautas = pautaRepository.findAllByHoraAndVaraAndSalaAndPautista(hora, vara, sala, pautistaResponse,
+					pageable);
+			maxElements = pautas.getTotalElements();
+			return new PageResponse(pautas.stream().map(Pauta::toDto).collect(Collectors.toList()), maxElements);
 		}
 
 	}
@@ -101,6 +75,11 @@ public class PautaService {
 		return pautaRepository.findById(id)
 				.map(Pauta::toDto)
 				.orElse(null);
+	}
+
+	@Transactional(readOnly = true)
+	public PautaDto findByProcesso(String processo) {
+		return pautaRepository.findByProcesso(processo).map(Pauta::toDto).orElse(null);
 	}
 
 	@Transactional

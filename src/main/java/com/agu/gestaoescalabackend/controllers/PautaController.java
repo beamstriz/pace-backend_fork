@@ -3,6 +3,8 @@ package com.agu.gestaoescalabackend.controllers;
 import com.agu.gestaoescalabackend.dto.PautaDto;
 import com.agu.gestaoescalabackend.repositories.PautaRepository;
 import com.agu.gestaoescalabackend.services.PautaService;
+import com.agu.gestaoescalabackend.util.PageResponse;
+
 import lombok.AllArgsConstructor;
 
 import org.springframework.http.HttpHeaders;
@@ -38,12 +40,18 @@ public class PautaController {
 			@RequestParam(required = false) String dataInicial,
 			@RequestParam(required = false) String dataFinal, @RequestParam int page, @RequestParam int size) {
 		HttpHeaders headers = new HttpHeaders();
-		Long maxPages = pautaService.getMaxIndex(hora, vara, sala, pautista, dataInicial, dataFinal, page, size);
-		headers.add("maxElements", Long.toString(maxPages));
-		headers.add("Access-Control-Expose-Headers", "maxElements");
-		List<PautaDto> response = pautaService.findByFilters(hora, vara, sala, pautista, dataInicial, dataFinal, page,
+		PageResponse response = pautaService.findByFilters(hora, vara, sala, pautista, dataInicial, dataFinal, page,
 				size);
-		return new ResponseEntity<>(response, headers, HttpStatus.OK);
+		Long maxElements = response.getMaxElements();
+		headers.add("maxElements", Long.toString(maxElements));
+		headers.add("Access-Control-Expose-Headers", "maxElements");
+		return new ResponseEntity<>(response.getPautas(), headers, HttpStatus.OK);
+	}
+
+	@GetMapping("/processo")
+	public ResponseEntity<PautaDto> findByProcesso(@RequestParam String processo) {
+		PautaDto pautaDto = pautaService.findByProcesso(processo);
+		return ResponseEntity.ok(pautaDto);
 	}
 
 	@GetMapping("/{pautaDeAudienciaId}")
