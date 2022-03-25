@@ -48,6 +48,14 @@ public class PautaController {
 		return new ResponseEntity<>(response.getPautas(), headers, HttpStatus.OK);
 	}
 
+	@GetMapping("/total")
+	public ResponseEntity<Void> getTotalRows() {
+		HttpHeaders headers = new HttpHeaders();
+		headers.add("Access-Control-Expose-Headers", "maxElements");
+		headers.add("maxElements", Long.toString(pautaService.getTotalRows()));
+		return new ResponseEntity<>(headers, HttpStatus.OK);
+	}
+
 	@GetMapping("/processo")
 	public ResponseEntity<PautaDto> findByProcesso(@RequestParam String processo) {
 		PautaDto pautaDto = pautaService.findByProcesso(processo);

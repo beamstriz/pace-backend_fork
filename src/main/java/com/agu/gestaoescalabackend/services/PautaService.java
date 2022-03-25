@@ -69,6 +69,11 @@ public class PautaService {
 
 	}
 
+	@Transactional(readOnly = true) 
+		public Long getTotalRows() {
+			return pautaRepository.count();
+		}
+
 	@Transactional(readOnly = true)
 	public PautaDto findById(Long id) {
 
