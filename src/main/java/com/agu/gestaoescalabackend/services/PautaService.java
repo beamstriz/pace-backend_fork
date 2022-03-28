@@ -44,7 +44,12 @@ public class PautaService {
 	@Transactional(readOnly = true)
 	public PageResponse findByFilters(String hora, String vara, String sala, Long pautista, String dataInicial,
 			String dataFinal, int page, int size) {
-		Pageable pageable = PageRequest.of(page, size);
+				Pageable pageable;
+				if (page == 0) {
+					pageable = Pageable.unpaged();
+				} else {
+					pageable = PageRequest.of(page, size);
+				}
 		Pautista pautistaResponse = null;
 		Page<Pauta> pautas;
 		Long maxElements;
