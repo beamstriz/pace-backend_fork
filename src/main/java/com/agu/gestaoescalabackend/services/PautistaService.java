@@ -22,7 +22,7 @@ public class PautistaService {
 
     @Transactional(readOnly = true)
     public List<PautistaDto> findAll() {
-        return pautistaRepository.findAll()
+        return pautistaRepository.findAllByOrderBySaldoDesc()
                 .stream()
                 .map(Pautista::toDto)
                 .collect(Collectors.toList());
