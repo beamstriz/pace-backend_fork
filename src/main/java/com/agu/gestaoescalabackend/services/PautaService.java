@@ -150,6 +150,6 @@ public class PautaService {
 		// no banco igual ao do DTO
 		Pauta pautaExistente = pautaRepository.findByProcessoAndTipoPauta(pautaDto.getProcesso(),
 				pautaDto.getTipoPauta());
-		return (pautaExistente == null || pautaExistente.equals(pauta));
+		return (pautaExistente == null || pautaExistente.equals(pauta) || !(pautaExistente.getData().isEqual(pauta.getData())));
 	}
 }
