@@ -44,7 +44,12 @@ public class PautaService {
 	@Transactional(readOnly = true)
 	public PageResponse findByFilters(String hora, String vara, String sala, Long pautista, String dataInicial,
 			String dataFinal, int page, int size) {
-		Pageable pageable = PageRequest.of(page, size);
+		Pageable pageable;
+		if (page == 0 && size == 0) {
+			pageable = Pageable.unpaged();
+		} else {
+			pageable = PageRequest.of(page, size);
+		}
 		Pautista pautistaResponse = null;
 		Page<Pauta> pautas;
 		Long maxElements;
@@ -69,10 +74,10 @@ public class PautaService {
 
 	}
 
-	@Transactional(readOnly = true) 
-		public Long getTotalRows() {
-			return pautaRepository.count();
-		}
+	@Transactional(readOnly = true)
+	public Long getTotalRows() {
+		return pautaRepository.count();
+	}
 
 	@Transactional(readOnly = true)
 	public PautaDto findById(Long id) {
@@ -145,6 +150,6 @@ public class PautaService {
 		// no banco igual ao do DTO
 		Pauta pautaExistente = pautaRepository.findByProcessoAndTipoPauta(pautaDto.getProcesso(),
 				pautaDto.getTipoPauta());
-		return (pautaExistente == null || pautaExistente.equals(pauta));
+		return (pautaExistente == null || pautaExistente.equals(pauta) || !(pautaExistente.getData().isEqual(pauta.getData())));
 	}
 }

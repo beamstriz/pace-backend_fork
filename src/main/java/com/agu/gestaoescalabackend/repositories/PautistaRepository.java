@@ -16,6 +16,8 @@ public interface PautistaRepository extends JpaRepository<Pautista, Long> {
     Pautista findByNome(String nome);
 
     boolean existsByNome(String nome);
+    
+    List<Pautista> findAllByOrderBySaldoDesc();
 
     List<Pautista> findAllByOrderBySaldoPesoAsc();
 
