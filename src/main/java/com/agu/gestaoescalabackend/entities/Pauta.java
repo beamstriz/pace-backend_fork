@@ -4,6 +4,9 @@ import com.agu.gestaoescalabackend.dto.PautaDto;
 import com.agu.gestaoescalabackend.enums.TipoPauta;
 import com.agu.gestaoescalabackend.enums.TurnoPauta;
 import com.agu.gestaoescalabackend.util.Conversor;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -51,6 +54,7 @@ public class Pauta implements Serializable {
 	// ATRIBUTOS DE RELACIONAMENTO
 	@ManyToOne
 	@JoinColumn(name = "pautista_id")
+
 	private Pautista pautista;
 	@ManyToOne
 	@JoinColumn(name = "mutirao_id")
