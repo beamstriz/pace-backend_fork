@@ -178,7 +178,7 @@ public class MutiraoService {
 	------------------------------------------------*/
 
 	@Transactional
-	public List<PautaDto> atualizarProcurador(Long pautaDeAudienciaId, Long procuradorId) {
+	public List<Pauta> atualizarProcurador(Long pautaDeAudienciaId, Long procuradorId) {
 
 		if ((!pautaRepository.existsById(pautaDeAudienciaId)) || (!pautistaRepository.existsById(procuradorId)))
 			return null;
@@ -195,10 +195,7 @@ public class MutiraoService {
 			pautaRepository.save(pauta);
 		}
 
-		return listaPautaDoPautista
-				.stream()
-				.map(Pauta::toDto)
-				.collect(Collectors.toList());
+		return listaPautaDoPautista;
 	}
 
 	private void atualizarVaraPautas(Long mutiraoId, String vara) {

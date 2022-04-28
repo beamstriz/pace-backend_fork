@@ -54,9 +54,9 @@ public class PautaController {
 	}
 
 	@GetMapping("/processo")
-	public ResponseEntity<PautaDto> findByProcesso(@RequestParam String processo) {
-		PautaDto pautaDto = pautaService.findByProcesso(processo);
-		return ResponseEntity.ok(pautaDto);
+	public ResponseEntity<Pauta> findByProcesso(@RequestParam String processo) {
+		Pauta pauta = pautaService.findByProcesso(processo);
+		return ResponseEntity.ok(pauta);
 	}
 
 	@GetMapping("/{pautaDeAudienciaId}")

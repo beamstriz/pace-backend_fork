@@ -82,8 +82,8 @@ public class PautaService {
 	}
 
 	@Transactional(readOnly = true)
-	public PautaDto findByProcesso(String processo) {
-		return pautaRepository.findByProcesso(processo).map(Pauta::toDto).orElse(null);
+	public Pauta findByProcesso(String processo) {
+		return pautaRepository.findByProcesso(processo).orElse(null);
 	}
 
 	@Transactional
