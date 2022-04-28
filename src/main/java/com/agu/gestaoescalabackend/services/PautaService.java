@@ -33,11 +33,9 @@ public class PautaService {
 	////////////////////////////////// SERVIÇOS ///////////////////////////////////
 
 	@Transactional(readOnly = true)
-	public List<PautaDto> findAll() {
-		return pautaRepository.findAllByOrderByIdAsc()
-				.stream()
-				.map(Pauta::toDto)
-				.collect(Collectors.toList());
+	public List<Pauta> findAll() {
+		return pautaRepository.findAllByOrderByIdAsc();
+				
 	}
 
 	@Transactional(readOnly = true)

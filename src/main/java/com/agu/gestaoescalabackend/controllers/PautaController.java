@@ -4,7 +4,6 @@ import com.agu.gestaoescalabackend.dto.PautaDto;
 import com.agu.gestaoescalabackend.entities.Pauta;
 import com.agu.gestaoescalabackend.repositories.PautaRepository;
 import com.agu.gestaoescalabackend.services.PautaService;
-import com.agu.gestaoescalabackend.util.PageResponse;
 
 import lombok.AllArgsConstructor;
 
@@ -30,8 +29,8 @@ public class PautaController {
 	private PautaRepository pautaRepository;
 
 	@GetMapping
-	public ResponseEntity<List<PautaDto>> findAll() {
-		List<PautaDto> response = pautaService.findAll();
+	public ResponseEntity<List<Pauta>> findAll() {
+		List<Pauta> response = pautaService.findAll();
 		return ResponseEntity.ok(response);
 	}
 
@@ -41,13 +40,8 @@ public class PautaController {
 			@RequestParam(required = false) String sala, @RequestParam(required = false) Long pautista,
 			@RequestParam(required = false) String dataInicial,
 			@RequestParam(required = false) String dataFinal, @RequestParam int page, @RequestParam int size) {
-		//HttpHeaders headers = new HttpHeaders();
 		Page<Pauta> response = pautaService.findByFilters(hora, vara, sala, pautista, dataInicial, dataFinal, page,
 				size);
-		//Long maxElements = response.getMaxElements();
-		//headers.add("maxElements", Long.toString(maxElements));
-		//headers.add("Access-Control-Expose-Headers", "maxElements");
-		//return new ResponseEntity<>(response.getPautas(), headers, HttpStatus.OK);
 		return ResponseEntity.ok(response);
 	}
 
