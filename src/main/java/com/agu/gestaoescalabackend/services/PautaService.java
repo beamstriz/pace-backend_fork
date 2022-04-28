@@ -7,7 +7,6 @@ import com.agu.gestaoescalabackend.entities.Pautista;
 import com.agu.gestaoescalabackend.repositories.MutiraoRepository;
 import com.agu.gestaoescalabackend.repositories.PautaRepository;
 import com.agu.gestaoescalabackend.repositories.PautistaRepository;
-import com.agu.gestaoescalabackend.util.PageResponse;
 
 import lombok.AllArgsConstructor;
 
@@ -42,7 +41,7 @@ public class PautaService {
 	}
 
 	@Transactional(readOnly = true)
-	public PageResponse findByFilters(String hora, String vara, String sala, Long pautista, String dataInicial,
+	public Page<Pauta> findByFilters(String hora, String vara, String sala, Long pautista, String dataInicial,
 			String dataFinal, int page, int size) {
 		Pageable pageable;
 		if (page == 0 && size == 0) {
@@ -52,7 +51,6 @@ public class PautaService {
 		}
 		Pautista pautistaResponse = null;
 		Page<Pauta> pautas;
-		Long maxElements;
 		if (pautista != null) {
 			pautistaResponse = pautistaRepository.findById(pautista).orElse(null);
 		}
@@ -63,13 +61,11 @@ public class PautaService {
 					pautistaResponse, inicial,
 					finall,
 					pageable);
-			maxElements = pautas.getTotalElements();
-			return new PageResponse(pautas.stream().map(Pauta::toDto).collect(Collectors.toList()), maxElements);
+			return pautas;
 		} else {
 			pautas = pautaRepository.findAllByHoraAndVaraAndSalaAndPautista(hora, vara, sala, pautistaResponse,
 					pageable);
-			maxElements = pautas.getTotalElements();
-			return new PageResponse(pautas.stream().map(Pauta::toDto).collect(Collectors.toList()), maxElements);
+			return pautas;
 		}
 
 	}
@@ -150,6 +146,7 @@ public class PautaService {
 		// no banco igual ao do DTO
 		Pauta pautaExistente = pautaRepository.findByProcessoAndTipoPauta(pautaDto.getProcesso(),
 				pautaDto.getTipoPauta());
-		return (pautaExistente == null || pautaExistente.equals(pauta) || !(pautaExistente.getData().isEqual(pauta.getData())));
+		return (pautaExistente == null || pautaExistente.equals(pauta)
+				|| !(pautaExistente.getData().isEqual(pauta.getData())));
 	}
 }

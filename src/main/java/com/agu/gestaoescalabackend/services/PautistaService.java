@@ -21,11 +21,8 @@ public class PautistaService {
     private PautistaRepository pautistaRepository;
 
     @Transactional(readOnly = true)
-    public List<PautistaDto> findAll() {
-        return pautistaRepository.findAllByOrderBySaldoDesc()
-                .stream()
-                .map(Pautista::toDto)
-                .collect(Collectors.toList());
+    public List<Pautista> findAll() {
+        return pautistaRepository.findAllByOrderBySaldoDesc();
     }
 
     @Transactional(readOnly = true)

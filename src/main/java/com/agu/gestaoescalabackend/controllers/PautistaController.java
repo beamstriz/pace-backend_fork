@@ -1,6 +1,7 @@
 package com.agu.gestaoescalabackend.controllers;
 
 import com.agu.gestaoescalabackend.dto.PautistaDto;
+import com.agu.gestaoescalabackend.entities.Pautista;
 import com.agu.gestaoescalabackend.enums.StatusPautista;
 import com.agu.gestaoescalabackend.repositories.PautistaRepository;
 import com.agu.gestaoescalabackend.services.PautistaService;
@@ -27,7 +28,7 @@ public class PautistaController {
 	private PautistaRepository pautistaRepository;
 
 	@GetMapping
-	public ResponseEntity<List<PautistaDto>> findAll() {
+	public ResponseEntity<List<Pautista>> findAll() {
 		return ResponseEntity.ok(
 				pautistaService.findAll());
 	}
