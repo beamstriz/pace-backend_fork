@@ -7,6 +7,7 @@ import com.agu.gestaoescalabackend.services.PautaService;
 
 import lombok.AllArgsConstructor;
 
+import org.apache.catalina.connector.Response;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -64,6 +65,12 @@ public class PautaController {
 		PautaDto pautaDto = pautaService.findById(pautaDeAudienciaId);
 		return ResponseEntity.ok(pautaDto);
 	}
+
+	@GetMapping("/mes")
+		public ResponseEntity<List<Long>> countMes() {
+			return ResponseEntity.ok(pautaService.countMes());
+		}
+	
 
 	@PostMapping
 	public ResponseEntity<List<PautaDto>> save(@RequestBody List<PautaDto> PautaDto) {
