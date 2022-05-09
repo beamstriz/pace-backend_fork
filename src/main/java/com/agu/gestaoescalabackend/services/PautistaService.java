@@ -34,7 +34,7 @@ public class PautistaService {
     }
 
     @Transactional(readOnly = true)
-    public List<PautistaDto> findAllAvailablePautistas(LocalDate data) {
+    public List<Pautista> findAllAvailablePautistas(LocalDate data) {
 
         List<StatusPautista> statusPautistas = new ArrayList<>();
         statusPautistas.add(StatusPautista.ATIVO);
@@ -50,10 +50,7 @@ public class PautistaService {
                 pautistaRetorno.add(pautista);
         }
 
-        return pautistaRetorno
-                .stream()
-                .map(Pautista::toDto)
-                .collect(Collectors.toList());
+        return pautistaRetorno;
     }
 
     @Transactional

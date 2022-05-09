@@ -15,8 +15,10 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import static java.time.temporal.TemporalAdjusters.*;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -33,11 +35,9 @@ public class PautaService {
 	////////////////////////////////// SERVIÇOS ///////////////////////////////////
 
 	@Transactional(readOnly = true)
-	public List<PautaDto> findAll() {
-		return pautaRepository.findAllByOrderByIdAsc()
-				.stream()
-				.map(Pauta::toDto)
-				.collect(Collectors.toList());
+	public List<Pauta> findAll() {
+		return pautaRepository.findAllByOrderByIdAsc();
+
 	}
 
 	@Transactional(readOnly = true)
@@ -76,6 +76,19 @@ public class PautaService {
 	}
 
 	@Transactional(readOnly = true)
+	public List<Long> countMes() {
+		List<Long> listaCount = new ArrayList<>();
+		LocalDate dataInicial = LocalDate.now().with(firstDayOfYear());
+		LocalDate dataFinal = LocalDate.now().with(firstDayOfYear()).with(lastDayOfMonth());
+		for (int i = 0; i < 12; i++) {
+			listaCount.add(pautaRepository.countByDataBetween(dataInicial, dataFinal));
+			dataInicial = dataInicial.plusMonths(1);
+			dataFinal = dataFinal.plusMonths(1).with(lastDayOfMonth());
+		}
+		return listaCount;
+	}
+
+	@Transactional(readOnly = true)
 	public PautaDto findById(Long id) {
 
 		return pautaRepository.findById(id)
@@ -84,8 +97,8 @@ public class PautaService {
 	}
 
 	@Transactional(readOnly = true)
-	public PautaDto findByProcesso(String processo) {
-		return pautaRepository.findByProcesso(processo).map(Pauta::toDto).orElse(null);
+	public Pauta findByProcesso(String processo) {
+		return pautaRepository.findByProcesso(processo).orElse(null);
 	}
 
 	@Transactional

@@ -4,10 +4,10 @@ import com.agu.gestaoescalabackend.dto.PautaDto;
 import com.agu.gestaoescalabackend.entities.Pauta;
 import com.agu.gestaoescalabackend.repositories.PautaRepository;
 import com.agu.gestaoescalabackend.services.PautaService;
-import com.agu.gestaoescalabackend.util.PageResponse;
 
 import lombok.AllArgsConstructor;
 
+import org.apache.catalina.connector.Response;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -30,8 +30,8 @@ public class PautaController {
 	private PautaRepository pautaRepository;
 
 	@GetMapping
-	public ResponseEntity<List<PautaDto>> findAll() {
-		List<PautaDto> response = pautaService.findAll();
+	public ResponseEntity<List<Pauta>> findAll() {
+		List<Pauta> response = pautaService.findAll();
 		return ResponseEntity.ok(response);
 	}
 
@@ -41,13 +41,8 @@ public class PautaController {
 			@RequestParam(required = false) String sala, @RequestParam(required = false) Long pautista,
 			@RequestParam(required = false) String dataInicial,
 			@RequestParam(required = false) String dataFinal, @RequestParam int page, @RequestParam int size) {
-		//HttpHeaders headers = new HttpHeaders();
 		Page<Pauta> response = pautaService.findByFilters(hora, vara, sala, pautista, dataInicial, dataFinal, page,
 				size);
-		//Long maxElements = response.getMaxElements();
-		//headers.add("maxElements", Long.toString(maxElements));
-		//headers.add("Access-Control-Expose-Headers", "maxElements");
-		//return new ResponseEntity<>(response.getPautas(), headers, HttpStatus.OK);
 		return ResponseEntity.ok(response);
 	}
 
@@ -60,9 +55,9 @@ public class PautaController {
 	}
 
 	@GetMapping("/processo")
-	public ResponseEntity<PautaDto> findByProcesso(@RequestParam String processo) {
-		PautaDto pautaDto = pautaService.findByProcesso(processo);
-		return ResponseEntity.ok(pautaDto);
+	public ResponseEntity<Pauta> findByProcesso(@RequestParam String processo) {
+		Pauta pauta = pautaService.findByProcesso(processo);
+		return ResponseEntity.ok(pauta);
 	}
 
 	@GetMapping("/{pautaDeAudienciaId}")
@@ -70,6 +65,12 @@ public class PautaController {
 		PautaDto pautaDto = pautaService.findById(pautaDeAudienciaId);
 		return ResponseEntity.ok(pautaDto);
 	}
+
+	@GetMapping("/mes")
+		public ResponseEntity<List<Long>> countMes() {
+			return ResponseEntity.ok(pautaService.countMes());
+		}
+	
 
 	@PostMapping
 	public ResponseEntity<List<PautaDto>> save(@RequestBody List<PautaDto> PautaDto) {

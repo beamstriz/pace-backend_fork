@@ -35,6 +35,8 @@ public interface PautaRepository extends JpaRepository<Pauta, Long> {
 	Page<Pauta> findAllByHoraAndVaraAndSalaAndPautista(String hora, String vara, String sala, Pautista pautista,
 			Pageable pageable);
 
+	Long countByDataBetween(LocalDate dataInicial, LocalDate dataFinal);
+
 	Optional<Pauta> findByProcesso(String processo);
 
 	@Modifying
