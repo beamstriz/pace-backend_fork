@@ -97,8 +97,9 @@ public class PautaService {
 	}
 
 	@Transactional(readOnly = true)
-	public Pauta findByProcesso(String processo) {
-		return pautaRepository.findByProcesso(processo).orElse(null);
+	public Pauta findByProcesso(String processo, String data) {
+		LocalDate data2 = LocalDate.parse(data);
+		return pautaRepository.findByProcessoAndData(processo, data2).orElse(null);
 	}
 
 	@Transactional

@@ -37,7 +37,7 @@ public interface PautaRepository extends JpaRepository<Pauta, Long> {
 
 	Long countByDataBetween(LocalDate dataInicial, LocalDate dataFinal);
 
-	Optional<Pauta> findByProcesso(String processo);
+	Optional<Pauta> findByProcessoAndData(String processo, LocalDate data);
 
 	@Modifying
 	@Query(value = "TRUNCATE TABLE tb_pauta RESTART IDENTITY CASCADE;", nativeQuery = true)

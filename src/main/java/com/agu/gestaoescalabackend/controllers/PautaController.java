@@ -17,6 +17,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -55,8 +56,8 @@ public class PautaController {
 	}
 
 	@GetMapping("/processo")
-	public ResponseEntity<Pauta> findByProcesso(@RequestParam String processo) {
-		Pauta pauta = pautaService.findByProcesso(processo);
+	public ResponseEntity<Pauta> findByProcesso(@RequestParam String processo, @RequestParam String data) {
+		Pauta pauta = pautaService.findByProcesso(processo, data);
 		return ResponseEntity.ok(pauta);
 	}
 
@@ -67,10 +68,9 @@ public class PautaController {
 	}
 
 	@GetMapping("/mes")
-		public ResponseEntity<List<Long>> countMes() {
-			return ResponseEntity.ok(pautaService.countMes());
-		}
-	
+	public ResponseEntity<List<Long>> countMes() {
+		return ResponseEntity.ok(pautaService.countMes());
+	}
 
 	@PostMapping
 	public ResponseEntity<List<PautaDto>> save(@RequestBody List<PautaDto> PautaDto) {
