@@ -111,10 +111,8 @@ public class PautaService {
 
 			Pauta pauta = pautaDto.toEntity();
 			pauta.setMutirao(mutirao);
-
-			if (validarCriacao(pautaDto, pauta)) {
-				pautaRepository.save(pauta).toDto();
-			}
+			pautaRepository.save(pauta).toDto();
+			
 		}
 		return pautaRepository.findAllByMutiraoId(mutirao.getId())
 				.stream()
@@ -154,13 +152,4 @@ public class PautaService {
 	/*------------------------------------------------
 	 METODOS DO MUTIRAO
 	------------------------------------------------*/
-
-	private boolean validarCriacao(PautaDto pautaDto, Pauta pauta) {
-		// Instancia um objeto base para verificar se já existe um registro 'nome'
-		// no banco igual ao do DTO
-		Pauta pautaExistente = pautaRepository.findByProcessoAndTipoPauta(pautaDto.getProcesso(),
-				pautaDto.getTipoPauta());
-		return (pautaExistente == null || pautaExistente.equals(pauta)
-				|| !(pautaExistente.getData().isEqual(pauta.getData())));
-	}
 }
