@@ -10,6 +10,7 @@ import com.agu.gestaoescalabackend.repositories.PautistaRepository;
 
 import lombok.AllArgsConstructor;
 
+import org.hibernate.criterion.Example;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -111,8 +112,10 @@ public class PautaService {
 
 			Pauta pauta = pautaDto.toEntity();
 			pauta.setMutirao(mutirao);
-			pautaRepository.save(pauta).toDto();
-			
+			if (validarCriacao(pautaDto, pauta)) {
+				pautaRepository.save(pauta).toDto();
+			}
+
 		}
 		return pautaRepository.findAllByMutiraoId(mutirao.getId())
 				.stream()
@@ -152,4 +155,25 @@ public class PautaService {
 	/*------------------------------------------------
 	 METODOS DO MUTIRAO
 	------------------------------------------------*/
+	private boolean validarCriacao(PautaDto pautaDto, Pauta pauta) {
+		// Instancia um objeto base para verificar se já existe um registro 'nome'
+		// no banco igual ao do DTO
+		try {
+			boolean pautaExistente = pautaRepository.existsByProcessoAndDataAndHora(pautaDto.getProcesso(), pautaDto.getData(), pautaDto.getHora());
+			if (pautaExistente == true) {
+				return false;
+			}else{
+				return true;
+			}
+			
+		} catch (Exception e) {
+			System.err.println("e.getMessage()");
+			System.err.println(e.getMessage());
+			return false;
+		}
+		/*
+		 * return (pautaExistente == null || pautaExistente.equals(pauta)
+		 * || !(pautaExistente.getData().isEqual(pauta.getData())));
+		 */
+	} 
 }

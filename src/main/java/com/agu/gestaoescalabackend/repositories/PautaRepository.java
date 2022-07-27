@@ -39,6 +39,8 @@ public interface PautaRepository extends JpaRepository<Pauta, Long> {
 
 	Optional<Pauta> findByProcessoAndData(String processo, LocalDate data);
 
+	boolean existsByProcessoAndDataAndHora(String processo, LocalDate data, String hora);
+
 	@Modifying
 	@Query(value = "TRUNCATE TABLE tb_pauta RESTART IDENTITY CASCADE;", nativeQuery = true)
 	void truncateTable();
