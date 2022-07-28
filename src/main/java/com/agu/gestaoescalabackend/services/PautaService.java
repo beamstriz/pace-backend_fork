@@ -107,16 +107,18 @@ public class PautaService {
 	public List<PautaDto> save(List<PautaDto> listaPautaDto) {
 
 		Mutirao mutirao = mutiraoService.save(listaPautaDto).toEntity();
-
-		for (PautaDto pautaDto : listaPautaDto) {
-
+		for (PautaDto pautaDto : listaPautaDto) {		
 			Pauta pauta = pautaDto.toEntity();
 			pauta.setMutirao(mutirao);
 			if (validarCriacao(pautaDto, pauta)) {
 				pautaRepository.save(pauta).toDto();
+			}else{
+				mutiraoService.excluir(mutirao.getId());
+				return null;
 			}
-
 		}
+		
+		
 		return pautaRepository.findAllByMutiraoId(mutirao.getId())
 				.stream()
 				.map(Pauta::toDto)
