@@ -7,6 +7,7 @@ import com.agu.gestaoescalabackend.enums.GrupoPautista;
 import com.agu.gestaoescalabackend.repositories.MutiraoRepository;
 import com.agu.gestaoescalabackend.services.MutiraoService;
 import lombok.AllArgsConstructor;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
@@ -17,8 +18,9 @@ import java.util.List;
 @RequestMapping(value = "/mutirao")
 @AllArgsConstructor
 public class MutiraoController {
-
+	
 	private MutiraoService mutiraoService;
+
 	private MutiraoRepository mutiraoRepository;
 
 	@GetMapping

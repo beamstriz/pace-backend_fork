@@ -3,9 +3,12 @@ package com.agu.gestaoescalabackend.entities;
 import com.agu.gestaoescalabackend.dto.PautistaDto;
 import com.agu.gestaoescalabackend.enums.GrupoPautista;
 import com.agu.gestaoescalabackend.enums.StatusPautista;
+import com.agu.gestaoescalabackend.services.PautaService;
 import com.agu.gestaoescalabackend.util.Conversor;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -60,6 +63,12 @@ public class Pautista implements Serializable, Comparable<Pautista> {
         return Conversor.converter(this, PautistaDto.class);
     }
 
+    public PautistaDto toNotListPautaDto(){
+        return new PautistaDto(
+            id, nome, grupoPautista, statusPautista, dataInicial,dataFinal,saldo,peso,saldoPeso
+        );
+    }
+
     /*------------------------------------------------
     METODOS DE CRUD
     ------------------------------------------------*/
@@ -95,17 +104,10 @@ public class Pautista implements Serializable, Comparable<Pautista> {
         return 0;
     }
 
-    public boolean estaDisponivel(LocalDate dataPassada){
-        for (Pauta pauta : this.getPautas())
-            if(pauta.getData().equals(dataPassada))
-                return false;
-        return true;
-    }
-
     public void atualizarSaldo(int valor, Pauta pauta){
         this.setSaldo(this.getSaldo() + valor);
         this.setSaldoPeso(this.getSaldo() * this.getPeso());
-        this.pautas.add(pauta);
+        /* this.pautas.add(pauta); */
     }
 
 }

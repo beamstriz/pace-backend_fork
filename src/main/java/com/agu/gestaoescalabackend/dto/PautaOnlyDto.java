@@ -22,7 +22,7 @@ import java.time.LocalDate;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class PautaDto implements Serializable {
+public class PautaOnlyDto implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	// ATRIBUTOS DE IDENTIFICAÇÃO
@@ -58,12 +58,6 @@ public class PautaDto implements Serializable {
 	@JsonProperty(value = "turno")
 	private TurnoPauta turnoPauta;
 
-	// ATRIBUTOS DE RELACIONAMENTO
-	@JsonProperty(access = JsonProperty.Access.READ_ONLY)
-	@JsonManagedReference
-	private PautistaDto pautista;
-	@JsonProperty(access = JsonProperty.Access.READ_ONLY)
-	private MutiraoDTO mutirao;
 
 	/*------------------------------------------------
      METODOS DE CONVERSÃO
@@ -71,10 +65,6 @@ public class PautaDto implements Serializable {
 
 	public Pauta toEntity(){
 		return Conversor.converter(this, Pauta.class);
-	}
-
-	public PautaOnlyDto toPautaOnlyDto(){
-		return Conversor.converter(this, PautaOnlyDto.class);
 	}
 
 	//Métodos de Negocio

@@ -43,7 +43,7 @@ public class PautistaController {
 	}
 
 	@GetMapping("/disponiveis")
-	public ResponseEntity<List<Pautista>> findAllAvailablePautistas(@RequestParam String data) {
+	public ResponseEntity<List<PautistaDto>> findAllAvailablePautistas(@RequestParam String data) {
 		return ResponseEntity.ok(
 		pautistaService.findAllAvailablePautistas(LocalDate.parse(data))
 		);

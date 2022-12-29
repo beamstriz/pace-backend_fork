@@ -44,6 +44,7 @@ public class Mutirao implements Serializable {
 
 
 
+
 	/*------------------------------------------------
      METODOS DE CONVERSÃO
     ------------------------------------------------*/

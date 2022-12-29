@@ -1,6 +1,7 @@
 package com.agu.gestaoescalabackend.entities;
 
 import com.agu.gestaoescalabackend.dto.PautaDto;
+import com.agu.gestaoescalabackend.dto.PautaOnlyDto;
 import com.agu.gestaoescalabackend.enums.TipoPauta;
 import com.agu.gestaoescalabackend.enums.TurnoPauta;
 import com.agu.gestaoescalabackend.util.Conversor;
@@ -64,6 +65,10 @@ public class Pauta implements Serializable {
 
 	public PautaDto toDto(){
 		return Conversor.converter(this, PautaDto.class);
+	}
+
+	public PautaOnlyDto toPautaOnlyDto(){
+		return Conversor.converter(this, PautaOnlyDto.class);
 	}
 
 

@@ -1,6 +1,8 @@
 package com.agu.gestaoescalabackend.services;
 
 import com.agu.gestaoescalabackend.dto.PautaDto;
+import com.agu.gestaoescalabackend.dto.PautaOnlyDto;
+import com.agu.gestaoescalabackend.dto.PautistaDto;
 import com.agu.gestaoescalabackend.entities.Mutirao;
 import com.agu.gestaoescalabackend.entities.Pauta;
 import com.agu.gestaoescalabackend.entities.Pautista;
@@ -10,7 +12,8 @@ import com.agu.gestaoescalabackend.repositories.PautistaRepository;
 
 import lombok.AllArgsConstructor;
 
-import org.hibernate.criterion.Example;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -19,6 +22,8 @@ import org.springframework.transaction.annotation.Transactional;
 import static java.time.temporal.TemporalAdjusters.*;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -27,10 +32,11 @@ import java.util.stream.Collectors;
 @Service
 @AllArgsConstructor
 public class PautaService {
-
+	
 	private PautaRepository pautaRepository;
+	
 	private PautistaRepository pautistaRepository;
-	private MutiraoRepository mutiraoRepository;
+	
 	private MutiraoService mutiraoService;
 
 	////////////////////////////////// SERVIÇOS ///////////////////////////////////
@@ -40,6 +46,45 @@ public class PautaService {
 		return pautaRepository.findAllByOrderByIdAsc();
 
 	}
+
+	@Transactional
+	public List<PautaDto> findAllByMutiraoId(long mutiraoId){
+
+		return pautaRepository.findAllByMutiraoId(mutiraoId)
+				.stream()
+				.map(Pauta::toDto)
+				.collect(Collectors.toList());
+
+	}
+
+	/* @Transactional
+	public List<PautaDto> findAllByPautistaId(long PautistaId){
+
+		return pautaRepository.findAllByPautistaId(PautistaId)
+				.stream()
+				.map(Pauta::toDto)
+				.collect(Collectors.toList());
+
+	} */
+
+	@Transactional
+	public List<Pauta> findAllByPautistaId(long PautistaId){
+		return pautaRepository.findAllByPautistaId(PautistaId);
+	}
+
+	@Transactional
+	public List<PautaOnlyDto> findAllPautaOnlyByPautistaId(long PautistaId){
+		return pautaRepository.findAllByPautistaId(PautistaId)
+				.stream()
+				.map(Pauta::toPautaOnlyDto)
+				.collect(Collectors.toList());
+	}
+
+	@Transactional
+	public boolean existsByPautistaAndData(PautistaDto pautista, LocalDate data){
+		return pautaRepository.existsByPautistaAndData(pautista.toEntity(), data);
+	}
+
 
 	@Transactional(readOnly = true)
 	public Page<Pauta> findByFilters(String hora, String vara, String sala, Long pautista, String dataInicial,
@@ -104,14 +149,26 @@ public class PautaService {
 	}
 
 	@Transactional
-	public List<PautaDto> save(List<PautaDto> listaPautaDto) {
+	public List<PautaDto> saveAllGeracaoEscala(List<PautaDto> listaPautaDto) {
+		List <Pauta> pautaListEntity = listaPautaDto.stream()
+		.map(PautaDto::toEntity)
+		.collect(Collectors.toList());
+
+		return pautaRepository.saveAll(pautaListEntity)
+		.stream()
+		.map(Pauta::toDto)
+		.collect(Collectors.toList());
+	}
+
+	@Transactional
+	public List<PautaDto> saveAll(List<PautaDto> listaPautaDto) {
 
 		Mutirao mutirao = mutiraoService.save(listaPautaDto).toEntity();
 		for (PautaDto pautaDto : listaPautaDto) {		
 			Pauta pauta = pautaDto.toEntity();
 			pauta.setMutirao(mutirao);
 			if (validarCriacao(pautaDto, pauta)) {
-				pautaRepository.save(pauta).toDto();
+				pautaRepository.save(pauta);
 			}else{
 				mutiraoService.excluir(mutirao.getId());
 				return null;
@@ -147,7 +204,7 @@ public class PautaService {
 			if (pautaOptional.isPresent()) {
 				Integer quantidadeDePautas = pautaOptional.get().getMutirao().getQuantidaDePautas();
 				if (quantidadeDePautas == 1) {
-					mutiraoRepository.deleteById(pautaOptional.get().getMutirao().getId());
+					mutiraoService.excluir(pautaOptional.get().getMutirao().getId());
 				}
 			}
 			pautaRepository.deleteById(pautaDeAudienciaId);
