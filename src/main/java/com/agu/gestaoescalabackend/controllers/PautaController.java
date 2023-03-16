@@ -17,7 +17,6 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -74,9 +73,9 @@ public class PautaController {
 
 	@PostMapping
 	public ResponseEntity<List<PautaDto>> save(@RequestBody List<PautaDto> PautaDto) {
-		List<PautaDto> listaPautaDto = pautaService.save(PautaDto);
+		List<PautaDto> listaPautaDto = pautaService.saveAll(PautaDto);
 		if (listaPautaDto == null)
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+			return ResponseEntity.status(HttpStatus.CONFLICT).build();
 		return ResponseEntity.ok(listaPautaDto);
 	}
 

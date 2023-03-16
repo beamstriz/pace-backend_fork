@@ -25,6 +25,8 @@ public interface PautistaRepository extends JpaRepository<Pautista, Long> {
 
     List<Pautista> findAllByStatusPautistaInOrderByNomeAsc(List<StatusPautista> status);
 
+    List<Pautista> findAllByStatusPautistaInOrderByStatusPautista(List<StatusPautista> status);
+
     List<Pautista> findAllByGrupoPautistaAndStatusPautistaOrderBySaldoPesoAsc(GrupoPautista grupoPautista, StatusPautista statusPautista);
 
     @Modifying

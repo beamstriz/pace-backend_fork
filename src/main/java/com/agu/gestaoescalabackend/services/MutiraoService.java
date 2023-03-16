@@ -6,6 +6,7 @@ package com.agu.gestaoescalabackend.services;
 
 import com.agu.gestaoescalabackend.dto.MutiraoDTO;
 import com.agu.gestaoescalabackend.dto.PautaDto;
+import com.agu.gestaoescalabackend.dto.PautistaDto;
 import com.agu.gestaoescalabackend.entities.Mutirao;
 import com.agu.gestaoescalabackend.entities.Pauta;
 import com.agu.gestaoescalabackend.entities.Pautista;
@@ -15,7 +16,8 @@ import com.agu.gestaoescalabackend.enums.StatusPautista;
 import com.agu.gestaoescalabackend.repositories.MutiraoRepository;
 import com.agu.gestaoescalabackend.repositories.PautaRepository;
 import com.agu.gestaoescalabackend.repositories.PautistaRepository;
-import lombok.AllArgsConstructor;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,15 +25,26 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @SuppressWarnings("ALL")
 @Service
-@AllArgsConstructor
 public class MutiraoService {
-
+	
+	@Autowired
 	private MutiraoRepository mutiraoRepository;
+	
+	@Autowired
 	private PautaRepository pautaRepository;
+
+	@Autowired
+	private PautaService pautaService;
+		
+	@Autowired
 	private PautistaRepository pautistaRepository;
+
+	@Autowired
+	private PautistaService pautistaService;
 
 	@Transactional(readOnly = true)
 	public List<MutiraoDTO> findAll() {
@@ -106,71 +119,72 @@ public class MutiraoService {
 			return null;}
 
 		// INSTANCIA A LISTA DE OBJETOS
-		List<Pauta> pautaList = pautaRepository.findAllByMutiraoId(mutiraoId);
-		List<Pautista> pautistaList = retornarListaDe(grupoPautista);
-		Pauta ultimaPauta = pautaList.get(0);
-		Pautista pautistaAtual = pegarPautistaDisponivel(pautistaList, ultimaPauta);
-
+		List<PautaDto> pautaList = pautaService.findAllByMutiraoId(mutiraoId);
+		List<PautistaDto> pautistaList = retornarListaDe(grupoPautista);
+		/* PautaDto ultimaPauta = pautaList.get(pautaList.size()-1); */
+		PautaDto ultimaPauta = pautaList.get(0);
+		PautistaDto pautistaAtual = pegarPautistaDisponivel(pautistaList,ultimaPauta);
 		// EFETUA AS OPERAÇÕES PARA CADA PAUTA
-		for (Pauta pautaAtual : pautaList) {
+		
+		for (PautaDto pautaAtual : pautaList) {
 
 			// VERIFICA SE A SALA, DIA OU TURNO MUDARAM
 			if (ultimaPauta.temOMesmoPeriodo(pautaAtual)) {
 
 				pautaAtual.setPautista(pautistaAtual);
-				pautistaAtual.atualizarSaldo(1, pautaAtual);
+				pautistaAtual.atualizarSaldo(1,pautaAtual.toPautaOnlyDto());
+	
 			}
 			else {
 				// REORDENA OS PAUTISTAS POR SALDO
 				Collections.sort(pautistaList);
-
 				pautistaAtual = pegarPautistaDisponivel(pautistaList, pautaAtual);
 				pautaAtual.setPautista(pautistaAtual);
-				pautistaAtual.atualizarSaldo(1, pautaAtual);
+				pautistaAtual.atualizarSaldo(1,pautaAtual.toPautaOnlyDto());
 
 				// ATUALIZA A ÚLTIMA PAUTA
 				ultimaPauta = pautaAtual;
 			}
+			
 		}
 
 		// DEFINE O STATUS DO MUTIRAO E SALVA A PAUTA
 		mutirao.get().setStatusPauta(StatusPauta.COM_ESCALA);
 
-		return pautaRepository.saveAll(pautaList)
-				.stream()
-				.map(Pauta::toDto)
-				.collect(Collectors.toList());
+		return pautaService.saveAllGeracaoEscala(pautaList);
+				
 	}
 
 	/*------------------------------------------------
 	 METODOS DA ESCALA
 	------------------------------------------------*/
 
-	private List<Pautista> retornarListaDe(GrupoPautista grupoPautista) {
-		if (grupoPautista.equals(GrupoPautista.PROCURADOR) || grupoPautista.equals(GrupoPautista.PREPOSTO))
-			return pautistaRepository.findAllByGrupoPautistaAndStatusPautistaOrderBySaldoPesoAsc(grupoPautista, StatusPautista.ATIVO);
-		return pautistaRepository.findAllByStatusPautistaOrderBySaldoPesoAsc(
+	private List<PautistaDto> retornarListaDe(GrupoPautista grupoPautista) {
+		if (grupoPautista.equals(GrupoPautista.PROCURADOR) || grupoPautista.equals(GrupoPautista.PREPOSTO)){
+			return pautistaService.findAllByGrupoPautistaAndStatusPautistaOrderBySaldoPesoAsc(grupoPautista, StatusPautista.ATIVO);
+		}
+			return pautistaService.findAllByStatusPautistaOrderBySaldoPesoAsc(
 				StatusPautista.ATIVO);
 	}
 
-	private Pautista pegarPautistaDisponivel(List<Pautista> pautistaList, Pauta pautaAtual) {
+	private PautistaDto pegarPautistaDisponivel(List<PautistaDto> pautistaList, PautaDto pautaAtual) {
+		
+		PautistaDto pautistaDisponivel = new PautistaDto();
 
-		// BUSCA POR UM PAUTISTA DISPONÍVEL E QUE NÃO TRABALHOU NO DIA ANTERIOR
-		for (Pautista pautista : pautistaList) {
-			if (pautista.estaDisponivel(pautaAtual.getData())){
-				if (pautista.estaDisponivel(pautaAtual.getData().minusDays(1))){
-					return pautista;
-				}
-			}
-		}
-
-		// BUSCA SOMENTE POR UM PAUTISTA DISPONÍVEL
-		for (Pautista pautista : pautistaList) {
-			if (pautista.estaDisponivel(pautaAtual.getData())) {
+		for (PautistaDto pautista : pautistaList) {
+			// BUSCA POR UM PAUTISTA DISPONÍVEL E QUE NÃO TRABALHOU NO DIA ANTERIOR
+			if (pautistaService.estaDisponivel(pautista,pautaAtual.getData()) && pautistaService.estaDisponivel(pautista,pautaAtual.getData().minusDays(1))){
 				return pautista;
+				
+			// BUSCA SOMENTE POR UM PAUTISTA DISPONÍVEL
+			}else if (pautistaService.estaDisponivel(pautista,pautaAtual.getData())){
+				pautistaDisponivel = pautista;
 			}
+			
 		}
-		return null;
+
+		return pautistaDisponivel;
+		
 	}
 
 	/*------------------------------------------------
