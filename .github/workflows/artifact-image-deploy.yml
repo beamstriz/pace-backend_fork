@@ -28,6 +28,8 @@ jobs:
     needs: artifact-build
     name: Artifact Deploy
     runs-on: ubuntu-latest
+    env:
+      DOCKER_REPO: $DOCKER_REPOSITORY
     steps:
       - name: Docker Login
         uses: docker/login-action@v2
@@ -45,11 +47,9 @@ jobs:
           format: "v${major}.${minor}.${patch}"
 
       - name: Docker Image Publish
-        env:
-          DOCKER_REPO: $DOCKER_REPOSITORY
         run: |
-          docker build . --file Dockerfile --tag ${{DOCKER_REPO}}:latest --tag ${{DOCKER_REPO}}:${{ steps.versioning.outputs.version }}
-          docker push ${{DOCKER_REPO}} --all-tags
+          docker build . --file Dockerfile --tag $DOCKER_REPO:latest --tag $DOCKER_REPO:${{ steps.versioning.outputs.version }}
+          docker push $DOCKER_REPO --all-tags
 
   git-tagging:
     needs: artifact-deploy
