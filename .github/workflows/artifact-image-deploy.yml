@@ -31,7 +31,7 @@ jobs:
           tag_prefix: "v"
           major_pattern: "release:"
           minor_pattern: "feat:"
-          format: "v${major}.${minor}.${patch}"
+          version_format: "v${major}.${minor}.${patch}"
 
       - name: Docker Image Publish
         run: |
