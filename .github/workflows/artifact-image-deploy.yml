@@ -9,8 +9,8 @@ env:
   #IMAGE_NAME: ${{ github.repository }}
   #TAG_VERSION: $(date +%s)
   TAG_PREFIX: 'v'
-  MAJOR_PATTERN: "release:"
-  MINOR_PATTERN: "feat:"
+  MAJOR_PATTERN: 'release:'
+  MINOR_PATTERN: 'feat:'
   DOCKER_REPOSITORY: ${ { env.DOCKER_REPOSITORY } }
   GIT_OPS_REPOSITORY: ${ { env.GIT_OPS_REPOSITORY } }
 
