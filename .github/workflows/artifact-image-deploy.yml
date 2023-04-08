@@ -46,8 +46,8 @@ jobs:
 
       - name: Docker Image Publish
         run: |
-          docker build . --file Dockerfile --tag { { DOCKER_REPOSITORY } }:latest --tag { { DOCKER_REPOSITORY } }:${ { steps.versioning.outputs.version } }
-          docker push { { DOCKER_REPOSITORY } } --all-tags
+          docker build . --file Dockerfile --tag $DOCKER_REPOSITORY:latest --tag $DOCKER_REPOSITORY:${ { steps.versioning.outputs.version } }
+          docker push $DOCKER_REPOSITORY --all-tags
 
   git-tagging:
     needs: artifact-deploy
