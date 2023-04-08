@@ -50,6 +50,7 @@ jobs:
         run: |
           docker build . --file Dockerfile --tag $DOCKER_REPO:latest --tag $DOCKER_REPO:${{ steps.versioning.outputs.version }}
           docker push $DOCKER_REPO --all-tags
+          echo "$DOCKER_REPO"
 
   git-tagging:
     needs: artifact-deploy
