@@ -1,0 +1,71 @@
+name: Docker image publish
+on:
+  workflow_dispatch:
+
+env:
+  # Use docker.io for Docker Hub if empty
+  #REGISTRY: ghcr.io
+  # github.repository as <account>/<repo>
+  #IMAGE_NAME: ${{ github.repository }}
+  #TAG_VERSION: $(date +%s)
+  TAG_PREFIX: 'v'
+  MAJOR_PATTERN: "release:"
+  MINOR_PATTERN: "feat:"
+  DOCKER_REPOSITORY: ${ { env.DOCKER_REPOSITORY } }
+  GIT_OPS_REPOSITORY: ${ { env.GIT_OPS_REPOSITORY } }
+
+jobs:
+  artifact-build:
+    name: Artifact Build and Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Artifact Build and Tests
+        run: mvn clean install
+
+  artifact-deploy:
+    name: Artifact Deploy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Docker Login
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USER }}
+          password: ${{ secrets.DOCKER_TOKEN }}
+          
+      - name: Docker Image Tagging
+        uses: PaulHatch/semantic-version@v4.0.2
+        with:
+          branch: main
+          tag_prefix: { { TAG_PREFIX } }
+          major_pattern: { { MAJOR_PATTERN } }
+          minor_pattern: { { MINOR_PATTER } }
+          format: "v${major}.${minor}.${patch}"
+
+      - name: Docker Image Publish
+        run: |
+          docker build . --file Dockerfile --tag { { DOCKER_REPOSITORY } }:latest --tag { { DOCKER_REPOSITORY } }:${ { steps.versioning.outputs.version } }
+          docker push { { DOCKER_REPOSITORY } } --all-tags
+
+  git-tagging:
+    - name: Git tagging
+      uses: actions/create-release@v1
+      #env:
+      #  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ steps.versioning.outputs.version }}
+        release_name: ${{ steps.versioning.outputs.version }}
+
+  artifact-image-version-update:
+      - name: Update Artifact Image Version
+        uses: passeidireto/trigger-external-workflow-action@main
+        #env:
+        #  PAYLOAD_TAG: ${{ steps.versioning.outputs.version }}
+        with:
+          repository: { { GIT_OPS_REPOSITORY } }
+          event: update
+          github_pat: ${{ secrets.GIT_OPS_TOKEN }}
