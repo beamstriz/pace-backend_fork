@@ -3,12 +3,6 @@ on:
   workflow_dispatch:
 
 env:
-  # Use docker.io for Docker Hub if empty
-  #REGISTRY: ghcr.io
-  # github.repository as <account>/<repo>
-  #IMAGE_NAME: ${{ github.repository }}
-  #TAG_VERSION: $(date +%s)
-  DOCKER_REPOSITORY: ${ { env.DOCKER_REPOSITORY } }
   GIT_OPS_REPOSITORY: ${ { env.GIT_OPS_REPOSITORY } }
 
 jobs:
@@ -28,8 +22,6 @@ jobs:
     needs: artifact-build
     name: Artifact Deploy
     runs-on: ubuntu-latest
-    env:
-      DOCKER_REPO: $DOCKER_REPOSITORY
     steps:
       - name: Docker Login
         uses: docker/login-action@v2
@@ -48,9 +40,8 @@ jobs:
 
       - name: Docker Image Publish
         run: |
-          docker build . --file Dockerfile --tag $DOCKER_REPO:latest --tag $DOCKER_REPO:${{ steps.versioning.outputs.version }}
-          docker push $DOCKER_REPO --all-tags
-          echo "$DOCKER_REPO"
+          docker build . --file Dockerfile --tag nutec/pace:latest --tag nutec/pace:${{ steps.versioning.outputs.version }} 
+          docker push nutec/pace --all-tags 
 
   git-tagging:
     needs: artifact-deploy
@@ -59,8 +50,6 @@ jobs:
     steps:
       - name: Git tagging
         uses: actions/create-release@v1
-        #env:
-        #  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: ${{ steps.versioning.outputs.version }}
           release_name: ${{ steps.versioning.outputs.version }}
@@ -72,8 +61,6 @@ jobs:
     steps:
       - name: Update Artifact Image Version
         uses: passeidireto/trigger-external-workflow-action@main
-        #env:
-        #  PAYLOAD_TAG: ${{ steps.versioning.outputs.version }}
         with:
           repository: $GIT_OPS_REPOSITORY
           event: update
