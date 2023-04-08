@@ -8,9 +8,6 @@ env:
   # github.repository as <account>/<repo>
   #IMAGE_NAME: ${{ github.repository }}
   #TAG_VERSION: $(date +%s)
-  TAG_PREFIX: 'v'
-  MAJOR_PATTERN: 'release:'
-  MINOR_PATTERN: 'feat:'
   DOCKER_REPOSITORY: ${ { env.DOCKER_REPOSITORY } }
   GIT_OPS_REPOSITORY: ${ { env.GIT_OPS_REPOSITORY } }
 
@@ -41,9 +38,9 @@ jobs:
         uses: PaulHatch/semantic-version@v4.0.2
         with:
           branch: main
-          tag_prefix: {{ env.TAG_PREFIX }}
-          major_pattern: {{ env.MAJOR_PATTERN }}
-          minor_pattern: {{ env.MINOR_PATTERN }}
+          tag_prefix: 'v'
+          major_pattern: 'release:'
+          minor_pattern: 'feat:'
           format: "v${major}.${minor}.${patch}"
 
       - name: Docker Image Publish
