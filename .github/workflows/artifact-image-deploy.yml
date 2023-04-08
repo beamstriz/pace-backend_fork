@@ -46,10 +46,10 @@ jobs:
 
       - name: Docker Image Publish
         env:
-          DOCKER_REPOSITORY: $DOCKER_REPOSITORY
+          DOCKER_REPO: $DOCKER_REPOSITORY
         run: |
-          docker build . --file Dockerfile --tag ${{DOCKER_REPOSITORY}}:latest --tag ${{DOCKER_REPOSITORY}}:${{ steps.versioning.outputs.version }}
-          docker push $DOCKER_REPOSITORY --all-tags
+          docker build . --file Dockerfile --tag ${{DOCKER_REPO}}:latest --tag ${{DOCKER_REPO}}:${{ steps.versioning.outputs.version }}
+          docker push ${{DOCKER_REPO}} --all-tags
 
   git-tagging:
     needs: artifact-deploy
