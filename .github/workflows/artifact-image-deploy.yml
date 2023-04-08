@@ -53,20 +53,24 @@ jobs:
 
 
   git-tagging:
-    - name: Git tagging
-      uses: actions/create-release@v1
-      #env:
-      #  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        tag_name: ${{ steps.versioning.outputs.version }}
-        release_name: ${{ steps.versioning.outputs.version }}
+    name: Git Tagging
+    steps:
+      - name: Git tagging
+        uses: actions/create-release@v1
+        #env:
+        #  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ steps.versioning.outputs.version }}
+          release_name: ${{ steps.versioning.outputs.version }}
 
   artifact-image-version-update:
-    - name: Update Artifact Image Version
-      uses: passeidireto/trigger-external-workflow-action@main
-      #env:
-      #  PAYLOAD_TAG: ${{ steps.versioning.outputs.version }}
-      with:
-        repository: { { GIT_OPS_REPOSITORY } }
-        event: update
-        github_pat: ${{ secrets.GIT_OPS_TOKEN }}
+    name: Update Artifact Image Version
+    steps:
+      - name: Update Artifact Image Version
+        uses: passeidireto/trigger-external-workflow-action@main
+        #env:
+        #  PAYLOAD_TAG: ${{ steps.versioning.outputs.version }}
+        with:
+          repository: { { GIT_OPS_REPOSITORY } }
+          event: update
+          github_pat: ${{ secrets.GIT_OPS_TOKEN }}
