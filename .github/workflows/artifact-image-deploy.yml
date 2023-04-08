@@ -12,8 +12,6 @@ jobs:
     steps:
       - name: Checkout the repository
         uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
 
       - name: Artifact Build and Tests
         run: mvn clean install
@@ -23,6 +21,11 @@ jobs:
     name: Artifact Deploy
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
       - name: Docker Login
         uses: docker/login-action@v2
         with:
