@@ -69,6 +69,6 @@ jobs:
         #env:
         #  PAYLOAD_TAG: ${{ steps.versioning.outputs.version }}
         with:
-          repository: { { GIT_OPS_REPOSITORY } }
+          repository: $GIT_OPS_REPOSITORY
           event: update
           github_pat: ${{ secrets.GIT_OPS_TOKEN }}
