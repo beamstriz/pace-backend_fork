@@ -1,4 +1,4 @@
-name: Docker image publish
+name: Artifact Image Deploy
 on:
   workflow_dispatch:
 
@@ -36,7 +36,7 @@ jobs:
         with:
           username: ${{ secrets.DOCKER_USER }}
           password: ${{ secrets.DOCKER_TOKEN }}
-          
+
       - name: Docker Image Tagging
         uses: PaulHatch/semantic-version@v4.0.2
         with:
@@ -51,6 +51,7 @@ jobs:
           docker build . --file Dockerfile --tag { { DOCKER_REPOSITORY } }:latest --tag { { DOCKER_REPOSITORY } }:${ { steps.versioning.outputs.version } }
           docker push { { DOCKER_REPOSITORY } } --all-tags
 
+
   git-tagging:
     - name: Git tagging
       uses: actions/create-release@v1
@@ -61,11 +62,11 @@ jobs:
         release_name: ${{ steps.versioning.outputs.version }}
 
   artifact-image-version-update:
-      - name: Update Artifact Image Version
-        uses: passeidireto/trigger-external-workflow-action@main
-        #env:
-        #  PAYLOAD_TAG: ${{ steps.versioning.outputs.version }}
-        with:
-          repository: { { GIT_OPS_REPOSITORY } }
-          event: update
-          github_pat: ${{ secrets.GIT_OPS_TOKEN }}
+    - name: Update Artifact Image Version
+      uses: passeidireto/trigger-external-workflow-action@main
+      #env:
+      #  PAYLOAD_TAG: ${{ steps.versioning.outputs.version }}
+      with:
+        repository: { { GIT_OPS_REPOSITORY } }
+        event: update
+        github_pat: ${{ secrets.GIT_OPS_TOKEN }}
