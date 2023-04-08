@@ -3,6 +3,7 @@ on:
   workflow_dispatch:
 
 env:
+  TAGGING_VERSION: ~
   GIT_OPS_REPOSITORY: ${ { env.GIT_OPS_REPOSITORY } }
 
 jobs:
@@ -32,7 +33,7 @@ jobs:
           major_pattern: "release:"
           minor_pattern: "feat:"
           version_format: "v${major}.${minor}.${patch}"
-
+        $TAGGING_VERSION: ${{ steps.versioning.outputs.version }}
       - name: Docker Image Publish
         run: |
           docker build . --file Dockerfile --tag nutec/pace:latest --tag nutec/pace:${{ steps.versioning.outputs.version }} 
