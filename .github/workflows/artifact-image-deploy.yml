@@ -44,6 +44,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Git tagging
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         uses: actions/create-release@v1
         with:
           tag_name: ${{ steps.versioning.outputs.version }}
