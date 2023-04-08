@@ -7,7 +7,6 @@ env:
 
 jobs:
   artifact-build-and-deploy:
-    needs: artifact-build
     name: Artifact Build & Deploy
     runs-on: ubuntu-latest
     steps:
