@@ -39,7 +39,7 @@ jobs:
           docker push nutec/pace --all-tags 
 
   git-tagging:
-    needs: artifact-deploy
+    needs: artifact-build-and-deploy
     name: Git Tagging
     runs-on: ubuntu-latest
     steps:
