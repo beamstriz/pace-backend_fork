@@ -10,9 +10,9 @@
 		<relativePath /> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.agu</groupId>
-	<artifactId>gestao-escala-backend</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
-	<name>gestao-escala-backend</name>
+	<version>1.0</version>
+	<artifactId>pace</artifactId>
+	<name>pace</name>
 	<description>Projeto de Gestão de Escala de Pauta de Audiência</description>
 	<properties>
 		<java.version>11</java.version>
