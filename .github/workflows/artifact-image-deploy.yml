@@ -41,9 +41,9 @@ jobs:
         uses: PaulHatch/semantic-version@v4.0.2
         with:
           branch: main
-          tag_prefix: ${{ TAG_PREFIX }}
-          major_pattern: ${{ MAJOR_PATTERN }}
-          minor_pattern: ${{ MINOR_PATTERN }}
+          tag_prefix: {{ env.TAG_PREFIX }}
+          major_pattern: {{ env.MAJOR_PATTERN }}
+          minor_pattern: {{ env.MINOR_PATTERN }}
           format: "v${major}.${minor}.${patch}"
 
       - name: Docker Image Publish
