@@ -8,8 +8,8 @@ env:
   # github.repository as <account>/<repo>
   #IMAGE_NAME: ${{ github.repository }}
   #TAG_VERSION: $(date +%s)
-  DOCKER_REPOSITORY: ${{ DOCKER_REPOSITORY }}
-  GIT_OPS_REPOSITORY: ${{ GIT_OPS_REPOSITORY }}
+  DOCKER_REPOSITORY: ${ { env.DOCKER_REPOSITORY } }
+  GIT_OPS_REPOSITORY: ${ { env.GIT_OPS_REPOSITORY } }
 
 jobs:
   artifact-build:
