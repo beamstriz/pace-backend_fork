@@ -25,6 +25,7 @@ jobs:
         run: mvn clean install
 
   artifact-deploy:
+    needs: artifact-build
     name: Artifact Deploy
     runs-on: ubuntu-latest
     steps:
@@ -49,6 +50,7 @@ jobs:
           docker push { { DOCKER_REPOSITORY } } --all-tags
 
   git-tagging:
+    needs: artifact-deploy
     name: Git Tagging
     runs-on: ubuntu-latest
     steps:
@@ -61,6 +63,7 @@ jobs:
           release_name: ${{ steps.versioning.outputs.version }}
 
   artifact-image-version-update:
+    needs: git-tagging
     name: Update Artifact Image Version
     runs-on: ubuntu-latest
     steps:
