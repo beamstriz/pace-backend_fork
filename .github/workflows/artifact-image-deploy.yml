@@ -21,11 +21,6 @@ jobs:
     name: Artifact Deploy
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout the repository
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-
       - name: Docker Login
         uses: docker/login-action@v2
         with:
@@ -33,6 +28,7 @@ jobs:
           password: ${{ secrets.DOCKER_TOKEN }}
 
       - name: Docker Image Tagging
+        id: versioning
         uses: PaulHatch/semantic-version@v5.0.3
         with:
           tag_prefix: "v"
