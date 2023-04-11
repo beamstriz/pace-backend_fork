@@ -3,7 +3,6 @@ on:
   workflow_dispatch:
 
 env:
-  TAGGING_VERSION: ~
   GIT_OPS_REPOSITORY: ${ { env.GIT_OPS_REPOSITORY } }
 
 jobs:
