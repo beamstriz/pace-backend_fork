@@ -56,11 +56,11 @@ jobs:
       - name: Git tagging
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          tag_version: ${{needs.artifact-build-and-deploy.outputs.tag_version}}
+          tag_version: ${{ needs.artifact-build-and-deploy.outputs.tag_version }}
         uses: actions/create-release@v1
         with:
-          tag_name: $tag_version
-          release_name: $tag_version
+          tag_name: ${{ env.tag_version }}
+          release_name: ${{ env.tag_version }}
 
   artifact-image-version-update:
     needs: git-tagging
