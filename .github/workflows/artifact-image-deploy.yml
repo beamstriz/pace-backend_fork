@@ -2,9 +2,6 @@ name: Artifact Image Deploy
 on:
   workflow_dispatch:
 
-env:
-  GIT_OPS_REPOSITORY: ${ { env.GIT_OPS_REPOSITORY } }
-
 jobs:
   artifact-build-and-deploy:
     name: Artifact Build & Deploy
@@ -70,6 +67,6 @@ jobs:
       - name: Update Artifact Image Version
         uses: passeidireto/trigger-external-workflow-action@main
         with:
-          repository: $GIT_OPS_REPOSITORY
+          repository: ${{ vars.GIT_OPS_REPOSITORY }}
           event: update
           github_pat: ${{ secrets.GIT_OPS_TOKEN }}
