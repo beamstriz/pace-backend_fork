@@ -10,6 +10,8 @@ jobs:
   artifact-build-and-deploy:
     name: Artifact Build & Deploy
     runs-on: ubuntu-latest
+    outputs:
+      tag_version: ${{steps.tag-output.outputs}}
     steps:
       - name: Checkout the repository
         uses: actions/checkout@v3
@@ -33,11 +35,14 @@ jobs:
           major_pattern: "release:"
           minor_pattern: "feat:"
           version_format: "v${major}.${minor}.${patch}"
-        $TAGGING_VERSION: ${{ steps.versioning.outputs.version }}
       - name: Docker Image Publish
         run: |
           docker build . --file Dockerfile --tag nutec/pace:latest --tag nutec/pace:${{ steps.versioning.outputs.version }} 
           docker push nutec/pace --all-tags 
+
+      - name: Output Tag Version
+        id: tag-output
+        run: "${{ steps.versioning.outputs.version }} >> $GITHUB_OUTPUT"
 
   git-tagging:
     needs: artifact-build-and-deploy
@@ -52,10 +57,11 @@ jobs:
       - name: Git tagging
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          tag_version: ${{needs.artifact-build-and-deploy.outputs.tag_version}}
         uses: actions/create-release@v1
         with:
-          tag_name: $TAGGING_VERSION
-          release_name: ${{ steps.versioning.outputs.version }}
+          tag_name: $tag_version
+          release_name: $tag_version
 
   artifact-image-version-update:
     needs: git-tagging
