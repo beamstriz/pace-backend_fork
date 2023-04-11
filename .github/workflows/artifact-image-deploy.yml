@@ -60,8 +60,12 @@ jobs:
           release_name: ${{ env.tag_version }}
 
   artifact-image-version-update:
-    needs: git-tagging
+    needs: 
+      - git-tagging
+      - artifact-build-and-deploy
     name: Update Artifact Image Version
+    env:
+      PAYLOAD_TAG: ${{ needs.artifact-build-and-deploy.outputs.tag_version }}
     runs-on: ubuntu-latest
     steps:
       - name: Update Artifact Image Version
