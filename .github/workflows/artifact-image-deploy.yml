@@ -10,7 +10,7 @@ jobs:
     name: Artifact Build & Deploy
     runs-on: ubuntu-latest
     outputs:
-      tag_version: ${{steps.tag-output.outputs}}
+      tag_version: ${{ steps.tag-output.outputs.tag_version }}
     steps:
       - name: Checkout the repository
         uses: actions/checkout@v3
@@ -41,7 +41,7 @@ jobs:
 
       - name: Output Tag Version
         id: tag-output
-        run: "${{ steps.versioning.outputs.version }} >> $GITHUB_OUTPUT"
+        run: echo "tag_version=${{ steps.versioning.outputs.version }}" >> "$GITHUB_OUTPUT"
 
   git-tagging:
     needs: artifact-build-and-deploy
