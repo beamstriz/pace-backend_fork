@@ -71,14 +71,6 @@ public class PautaController {
 		return ResponseEntity.ok(pautaService.countMes());
 	}
 
-	@PostMapping
-	public ResponseEntity<List<PautaDto>> save(@RequestBody List<PautaDto> PautaDto) {
-		List<PautaDto> listaPautaDto = pautaService.saveAll(PautaDto);
-		if (listaPautaDto == null)
-			return ResponseEntity.status(HttpStatus.CONFLICT).build();
-		return ResponseEntity.ok(listaPautaDto);
-	}
-
 	@PutMapping("/{pautaDeAudienciaId}")
 	public ResponseEntity<PautaDto> update(@PathVariable Long pautaDeAudienciaId,
 			@RequestBody PautaDto pautaDto) {
@@ -86,12 +78,6 @@ public class PautaController {
 		if (pautaDto == null)
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
 		return ResponseEntity.ok(pautaDto);
-	}
-
-	@DeleteMapping("/{pautaDeAudienciaId}")
-	public ResponseEntity<Void> delete(@PathVariable Long pautaDeAudienciaId) {
-		pautaService.excluir(pautaDeAudienciaId);
-		return ResponseEntity.noContent().build();
 	}
 
 	/*------------------------------------------------
