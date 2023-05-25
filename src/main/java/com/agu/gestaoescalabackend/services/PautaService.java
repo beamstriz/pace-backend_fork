@@ -36,8 +36,7 @@ public class PautaService {
 	private PautaRepository pautaRepository;
 	
 	private PautistaRepository pautistaRepository;
-	
-	private MutiraoService mutiraoService;
+
 
 	////////////////////////////////// SERVIÇOS ///////////////////////////////////
 
@@ -160,27 +159,6 @@ public class PautaService {
 		.collect(Collectors.toList());
 	}
 
-	@Transactional
-	public List<PautaDto> saveAll(List<PautaDto> listaPautaDto) {
-
-		Mutirao mutirao = mutiraoService.save(listaPautaDto).toEntity();
-		for (PautaDto pautaDto : listaPautaDto) {		
-			Pauta pauta = pautaDto.toEntity();
-			pauta.setMutirao(mutirao);
-			if (validarCriacao(pautaDto, pauta)) {
-				pautaRepository.save(pauta);
-			}else{
-				mutiraoService.excluir(mutirao.getId());
-				return null;
-			}
-		}
-		
-		
-		return pautaRepository.findAllByMutiraoId(mutirao.getId())
-				.stream()
-				.map(Pauta::toDto)
-				.collect(Collectors.toList());
-	}
 
 	@Transactional
 	public PautaDto editar(Long pautaDeAudienciaId, PautaDto pautaDto) {
@@ -194,21 +172,6 @@ public class PautaService {
 
 		pauta = pautaRepository.save(pauta);
 		return pauta.toDto();
-	}
-
-	@Transactional
-	public void excluir(Long pautaDeAudienciaId) {
-		if (pautaRepository.existsById(pautaDeAudienciaId)) {
-
-			Optional<Pauta> pautaOptional = pautaRepository.findById(pautaDeAudienciaId);
-			if (pautaOptional.isPresent()) {
-				Integer quantidadeDePautas = pautaOptional.get().getMutirao().getQuantidaDePautas();
-				if (quantidadeDePautas == 1) {
-					mutiraoService.excluir(pautaOptional.get().getMutirao().getId());
-				}
-			}
-			pautaRepository.deleteById(pautaDeAudienciaId);
-		}
 	}
 
 	/*------------------------------------------------
