@@ -1,9 +1,8 @@
 package com.agu.gestaoescalabackend.services;
 
-import com.agu.gestaoescalabackend.dto.FiltroDTO;
-import com.agu.gestaoescalabackend.dto.PautaDto;
-import com.agu.gestaoescalabackend.dto.PautaOnlyDto;
-import com.agu.gestaoescalabackend.dto.PautistaDto;
+import com.agu.gestaoescalabackend.client.AudienciasVisaoClient;
+import com.agu.gestaoescalabackend.client.request.TarefaLoteRequest;
+import com.agu.gestaoescalabackend.dto.*;
 import com.agu.gestaoescalabackend.entities.Mutirao;
 import com.agu.gestaoescalabackend.entities.Pauta;
 import com.agu.gestaoescalabackend.entities.Pautista;
@@ -27,6 +26,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -40,6 +40,8 @@ public class PautaService {
 	private PautistaRepository pautistaRepository;
 	
 	private MutiraoService mutiraoService;
+
+	private AudienciasVisaoClient audienciasVisaoClient;
 
 	////////////////////////////////// SERVIÇOS ///////////////////////////////////
 
@@ -215,17 +217,54 @@ public class PautaService {
 	}
 
 	@Transactional
-	public void criarTarefasSapiens(FiltroDTO filtroPautas){
+	public void criarTarefasSapiens(InsertTarefasLoteDTO tarefasLoteDTO){
 		Page<Pauta> pautas = findByFilters(
-				filtroPautas.getHora(),
-				filtroPautas.getVara(),
-				filtroPautas.getSala(),
-				filtroPautas.getPautista(),
-				filtroPautas.getDataInicial(),
-				filtroPautas.getDataFinal(),
-				filtroPautas.getPage(),
-				filtroPautas.getSize()
+				tarefasLoteDTO.getFiltroPautas().getHora(),
+				tarefasLoteDTO.getFiltroPautas().getVara(),
+				tarefasLoteDTO.getFiltroPautas().getSala(),
+				tarefasLoteDTO.getFiltroPautas().getPautista(),
+				tarefasLoteDTO.getFiltroPautas().getDataInicial(),
+				tarefasLoteDTO.getFiltroPautas().getDataFinal(),
+				tarefasLoteDTO.getFiltroPautas().getPage(),
+				tarefasLoteDTO.getFiltroPautas().getSize()
 		);
+
+		int paginas = pautas.getTotalPages();
+		int totalElementos = pautas.getContent().size();
+		List<Pauta> pautaList = pautas.getContent();
+		List<Pauta>  pautaListRequest = new ArrayList<>();
+		Pautista pautistaAtual = pautaList.get(0).getPautista();
+
+		TarefaLoteRequest tarefaLoteRequest = tarefasLoteDTO.toRequest();
+		System.out.println("teste");
+		for (int i = 0; i < paginas ; i++) {
+			for (Pauta pautaAtual : pautaList) {
+				if(!pautaAtual.getPautista().equals(pautistaAtual)){
+					//TarefaLoteRequest tarefaLoteRequest = tarefasLoteDTO.toRequest();
+					//audienciasVisaoClient.insertTarefasLoteSapiens()
+					pautistaAtual = pautaAtual.getPautista();
+				}else{
+					pautaListRequest.add(pautaAtual);
+				}
+			}
+			if(i>0) {
+				pautas = findByFilters(
+						tarefasLoteDTO.getFiltroPautas().getHora(),
+						tarefasLoteDTO.getFiltroPautas().getVara(),
+						tarefasLoteDTO.getFiltroPautas().getSala(),
+						tarefasLoteDTO.getFiltroPautas().getPautista(),
+						tarefasLoteDTO.getFiltroPautas().getDataInicial(),
+						tarefasLoteDTO.getFiltroPautas().getDataFinal(),
+						i,
+						tarefasLoteDTO.getFiltroPautas().getSize()
+				);
+			}
+		}
+
+		//List<Pauta> pautaList = new ArrayList<>(pautas.getContent());
+		//List<Pauta> listaOrdenada = new ArrayList<>(pautaList);
+		//listaOrdenada.sort(Comparator.comparing(pauta -> pauta.getPautista().getNome()));
+
 
 	}
 

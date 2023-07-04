@@ -1,6 +1,7 @@
 package com.agu.gestaoescalabackend.controllers;
 
 import com.agu.gestaoescalabackend.dto.FiltroDTO;
+import com.agu.gestaoescalabackend.dto.InsertTarefasLoteDTO;
 import com.agu.gestaoescalabackend.dto.PautaDto;
 import com.agu.gestaoescalabackend.entities.Pauta;
 import com.agu.gestaoescalabackend.repositories.PautaRepository;
@@ -97,8 +98,8 @@ public class PautaController {
 	}
 
 	@PostMapping("/cadastroTarefas")
-	public void cadastroTarefas(@RequestBody FiltroDTO filtrosEscala){
-		pautaService.criarTarefasSapiens(filtrosEscala);
+	public void cadastroTarefas(@RequestBody InsertTarefasLoteDTO tarefasLoteDTO){
+		pautaService.criarTarefasSapiens(tarefasLoteDTO);
 	}
 
 	/*------------------------------------------------

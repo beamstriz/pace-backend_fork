@@ -1,15 +1,17 @@
-package com.agu.gestaoescalabackend.dto;
-import com.agu.gestaoescalabackend.client.request.TarefaLoteRequest;
+package com.agu.gestaoescalabackend.client.request;
+
+import com.agu.gestaoescalabackend.dto.FiltroDTO;
 import com.agu.gestaoescalabackend.dto.LoginDTO;
-import com.agu.gestaoescalabackend.util.Conversor;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotNull;
 
 @AllArgsConstructor
 @Data
-public class InsertTarefasLoteDTO {
+@NoArgsConstructor
+public class TarefaLoteRequest {
     @NotNull
     private LoginDTO login;
 
@@ -27,12 +29,7 @@ public class InsertTarefasLoteDTO {
     @NotNull
     private String prazoFim;
 
-    private FiltroDTO filtroPautas;
-
     @NotNull
     private String[] listaProcessosJudiciais;
 
-    public TarefaLoteRequest toRequest(){
-        return Conversor.converter(this, TarefaLoteRequest.class);
-    }
 }
