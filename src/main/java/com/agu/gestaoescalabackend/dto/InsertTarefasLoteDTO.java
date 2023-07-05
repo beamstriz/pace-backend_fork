@@ -18,19 +18,8 @@ public class InsertTarefasLoteDTO {
     private int especieTarefa;
     @NotNull
     private int setorResponsavel;
-    @NotNull
-    private int usuarioResponsavel;
-    @NotNull
-    private int setorOrigem;
-    @NotNull
-    private String prazoInicio;
-    @NotNull
-    private String prazoFim;
 
     private FiltroDTO filtroPautas;
-
-    @NotNull
-    private String[] listaProcessosJudiciais;
 
     public TarefaLoteRequest toRequest(){
         return Conversor.converter(this, TarefaLoteRequest.class);

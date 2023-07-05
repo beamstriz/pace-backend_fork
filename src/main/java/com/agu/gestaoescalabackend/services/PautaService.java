@@ -232,19 +232,26 @@ public class PautaService {
 		int paginas = pautas.getTotalPages();
 		int totalElementos = pautas.getContent().size();
 		List<Pauta> pautaList = pautas.getContent();
-		List<Pauta>  pautaListRequest = new ArrayList<>();
+		List<String>  processoListRequest = new ArrayList<>();
 		Pautista pautistaAtual = pautaList.get(0).getPautista();
+		LocalDate dataAtual = pautaList.get(0).getData();
 
 		TarefaLoteRequest tarefaLoteRequest = tarefasLoteDTO.toRequest();
 		System.out.println("teste");
 		for (int i = 0; i < paginas ; i++) {
 			for (Pauta pautaAtual : pautaList) {
-				if(!pautaAtual.getPautista().equals(pautistaAtual)){
+				if(!pautaAtual.getPautista().equals(pautistaAtual) || !dataAtual.equals(pautaAtual.getData())){
+					tarefaLoteRequest.setListaProcessosJudiciais(processoListRequest);
+					//pegar o id do pautista
 					//TarefaLoteRequest tarefaLoteRequest = tarefasLoteDTO.toRequest();
 					//audienciasVisaoClient.insertTarefasLoteSapiens()
 					pautistaAtual = pautaAtual.getPautista();
+					dataAtual = pautaAtual.getData();
+					processoListRequest.clear();
 				}else{
-					pautaListRequest.add(pautaAtual);
+					processoListRequest.add(pautaAtual.getProcesso());
+					tarefaLoteRequest.setPrazoFim(pautaAtual.getData().toString());
+					tarefaLoteRequest.setPrazoInicio(pautaAtual.getData().minusDays(1).toString());
 				}
 			}
 			if(i>0) {
