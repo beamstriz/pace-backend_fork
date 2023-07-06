@@ -2,6 +2,8 @@ package com.agu.gestaoescalabackend.services;
 
 import com.agu.gestaoescalabackend.client.AudienciasVisaoClient;
 import com.agu.gestaoescalabackend.client.request.TarefaLoteRequest;
+import com.agu.gestaoescalabackend.client.request.UsuarioResponsavelRequest;
+import com.agu.gestaoescalabackend.client.response.UsuarioResponsavelResponse;
 import com.agu.gestaoescalabackend.dto.*;
 import com.agu.gestaoescalabackend.entities.Mutirao;
 import com.agu.gestaoescalabackend.entities.Pauta;
@@ -242,16 +244,31 @@ public class PautaService {
 			for (Pauta pautaAtual : pautaList) {
 				if(!pautaAtual.getPautista().equals(pautistaAtual) || !dataAtual.equals(pautaAtual.getData())){
 					tarefaLoteRequest.setListaProcessosJudiciais(processoListRequest);
-					//pegar o id do pautista
-					//TarefaLoteRequest tarefaLoteRequest = tarefasLoteDTO.toRequest();
-					//audienciasVisaoClient.insertTarefasLoteSapiens()
+					UsuarioResponsavelRequest usuarioResponsavel = new UsuarioResponsavelRequest(
+							tarefasLoteDTO.getLogin(),pautistaAtual.getNome(), tarefasLoteDTO.getSetorResponsavel()
+					);
+					UsuarioResponsavelResponse usuarioResponse = audienciasVisaoClient.getUsuarioResponsavel(usuarioResponsavel);
+					tarefaLoteRequest.setUsuarioResponsavel(usuarioResponse.getId());
+					//enviar requisição de tarefas
+					audienciasVisaoClient.insertTarefasLoteSapiens(tarefaLoteRequest);
 					pautistaAtual = pautaAtual.getPautista();
 					dataAtual = pautaAtual.getData();
 					processoListRequest.clear();
 				}else{
-					processoListRequest.add(pautaAtual.getProcesso());
-					tarefaLoteRequest.setPrazoFim(pautaAtual.getData().toString());
-					tarefaLoteRequest.setPrazoInicio(pautaAtual.getData().minusDays(1).toString());
+					if (pautas.getContent().get(pautas.getSize() - 1).equals(pautaAtual)) {
+						tarefaLoteRequest.setListaProcessosJudiciais(processoListRequest);
+						UsuarioResponsavelRequest usuarioResponsavel = new UsuarioResponsavelRequest(
+								tarefasLoteDTO.getLogin(),pautistaAtual.getNome(), tarefasLoteDTO.getSetorResponsavel()
+						);
+						UsuarioResponsavelResponse usuarioResponse = audienciasVisaoClient.getUsuarioResponsavel(usuarioResponsavel);
+						tarefaLoteRequest.setUsuarioResponsavel(usuarioResponse.getId());
+						//enviar requisição de tarefas
+						audienciasVisaoClient.insertTarefasLoteSapiens(tarefaLoteRequest);
+					}
+						processoListRequest.add(pautaAtual.getProcesso());
+						tarefaLoteRequest.setPrazoFim(pautaAtual.getData().toString());
+						tarefaLoteRequest.setPrazoInicio(pautaAtual.getData().minusDays(1).toString());
+
 				}
 			}
 			if(i>0) {
