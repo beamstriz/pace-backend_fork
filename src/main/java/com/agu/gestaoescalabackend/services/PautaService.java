@@ -239,13 +239,12 @@ public class PautaService {
 		LocalDate dataAtual = pautaList.get(0).getData();
 
 		TarefaLoteRequest tarefaLoteRequest = tarefasLoteDTO.toRequest();
-		System.out.println("teste");
 		for (int i = 0; i < paginas ; i++) {
 			for (Pauta pautaAtual : pautaList) {
 				if(!pautaAtual.getPautista().equals(pautistaAtual) || !dataAtual.equals(pautaAtual.getData())){
 					tarefaLoteRequest.setListaProcessosJudiciais(processoListRequest);
 					UsuarioResponsavelRequest usuarioResponsavel = new UsuarioResponsavelRequest(
-							tarefasLoteDTO.getLogin(),pautistaAtual.getNome(), tarefasLoteDTO.getSetorResponsavel()
+							tarefasLoteDTO.getLogin(),pautistaAtual.getNome().toUpperCase(), tarefasLoteDTO.getSetorResponsavel()
 					);
 					UsuarioResponsavelResponse usuarioResponse = audienciasVisaoClient.getUsuarioResponsavel(usuarioResponsavel);
 					tarefaLoteRequest.setUsuarioResponsavel(usuarioResponse.getId());
@@ -254,22 +253,26 @@ public class PautaService {
 					pautistaAtual = pautaAtual.getPautista();
 					dataAtual = pautaAtual.getData();
 					processoListRequest.clear();
-				}else{
-					if (pautas.getContent().get(pautas.getSize() - 1).equals(pautaAtual)) {
-						tarefaLoteRequest.setListaProcessosJudiciais(processoListRequest);
-						UsuarioResponsavelRequest usuarioResponsavel = new UsuarioResponsavelRequest(
-								tarefasLoteDTO.getLogin(),pautistaAtual.getNome(), tarefasLoteDTO.getSetorResponsavel()
-						);
-						UsuarioResponsavelResponse usuarioResponse = audienciasVisaoClient.getUsuarioResponsavel(usuarioResponsavel);
-						tarefaLoteRequest.setUsuarioResponsavel(usuarioResponse.getId());
-						//enviar requisição de tarefas
-						audienciasVisaoClient.insertTarefasLoteSapiens(tarefaLoteRequest);
-					}
-						processoListRequest.add(pautaAtual.getProcesso());
-						tarefaLoteRequest.setPrazoFim(pautaAtual.getData().toString());
-						tarefaLoteRequest.setPrazoInicio(pautaAtual.getData().minusDays(1).toString());
+				}else if(pautas.getContent().get(totalElementos - 1).equals(pautaAtual)) {
+					processoListRequest.add(pautaAtual.getProcesso());
+					tarefaLoteRequest.setPrazoFim(pautaAtual.getData().toString());
+					tarefaLoteRequest.setPrazoInicio(pautaAtual.getData().minusDays(1).toString());
 
+					tarefaLoteRequest.setListaProcessosJudiciais(processoListRequest);
+					UsuarioResponsavelRequest usuarioResponsavel = new UsuarioResponsavelRequest(
+							tarefasLoteDTO.getLogin(), pautistaAtual.getNome(), tarefasLoteDTO.getSetorResponsavel()
+					);
+					UsuarioResponsavelResponse usuarioResponse = audienciasVisaoClient.getUsuarioResponsavel(usuarioResponsavel);
+					tarefaLoteRequest.setUsuarioResponsavel(usuarioResponse.getId());
+					//enviar requisição de tarefas
+					audienciasVisaoClient.insertTarefasLoteSapiens(tarefaLoteRequest);
+				}else {
+					processoListRequest.add(pautaAtual.getProcesso());
+					tarefaLoteRequest.setPrazoFim(pautaAtual.getData().toString());
+					tarefaLoteRequest.setPrazoInicio(pautaAtual.getData().minusDays(1).toString());
 				}
+
+
 			}
 			if(i>0) {
 				pautas = findByFilters(
@@ -289,7 +292,7 @@ public class PautaService {
 		//List<Pauta> listaOrdenada = new ArrayList<>(pautaList);
 		//listaOrdenada.sort(Comparator.comparing(pauta -> pauta.getPautista().getNome()));
 
-
+		System.out.println("cabou");
 	}
 
 	/*------------------------------------------------
