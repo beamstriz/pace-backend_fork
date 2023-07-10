@@ -240,6 +240,21 @@ public class PautaService {
 
 		TarefaLoteRequest tarefaLoteRequest = tarefasLoteDTO.toRequest();
 		for (int i = 0; i < paginas ; i++) {
+
+			if(i>0) {
+				pautas = findByFilters(
+						tarefasLoteDTO.getFiltroPautas().getHora(),
+						tarefasLoteDTO.getFiltroPautas().getVara(),
+						tarefasLoteDTO.getFiltroPautas().getSala(),
+						tarefasLoteDTO.getFiltroPautas().getPautista(),
+						tarefasLoteDTO.getFiltroPautas().getDataInicial(),
+						tarefasLoteDTO.getFiltroPautas().getDataFinal(),
+						i,
+						tarefasLoteDTO.getFiltroPautas().getSize()
+				);
+				totalElementos = pautas.getContent().size();
+			}
+
 			for (Pauta pautaAtual : pautaList) {
 				if(!pautaAtual.getPautista().equals(pautistaAtual) || !dataAtual.equals(pautaAtual.getData())){
 					tarefaLoteRequest.setListaProcessosJudiciais(processoListRequest);
@@ -273,18 +288,6 @@ public class PautaService {
 				}
 
 
-			}
-			if(i>0) {
-				pautas = findByFilters(
-						tarefasLoteDTO.getFiltroPautas().getHora(),
-						tarefasLoteDTO.getFiltroPautas().getVara(),
-						tarefasLoteDTO.getFiltroPautas().getSala(),
-						tarefasLoteDTO.getFiltroPautas().getPautista(),
-						tarefasLoteDTO.getFiltroPautas().getDataInicial(),
-						tarefasLoteDTO.getFiltroPautas().getDataFinal(),
-						i,
-						tarefasLoteDTO.getFiltroPautas().getSize()
-				);
 			}
 		}
 
