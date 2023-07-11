@@ -253,6 +253,8 @@ public class PautaService {
 						tarefasLoteDTO.getFiltroPautas().getSize()
 				);
 				totalElementos = pautas.getContent().size();
+				pautaList = pautas.getContent();
+				dataAtual = pautaList.get(0).getData();
 			}
 
 			for (Pauta pautaAtual : pautaList) {
@@ -268,6 +270,7 @@ public class PautaService {
 					pautistaAtual = pautaAtual.getPautista();
 					dataAtual = pautaAtual.getData();
 					processoListRequest.clear();
+					processoListRequest.add(pautaAtual.getProcesso());
 				}else if(pautas.getContent().get(totalElementos - 1).equals(pautaAtual)) {
 					processoListRequest.add(pautaAtual.getProcesso());
 					tarefaLoteRequest.setPrazoFim(pautaAtual.getData().toString());
@@ -281,6 +284,9 @@ public class PautaService {
 					tarefaLoteRequest.setUsuarioResponsavel(usuarioResponse.getId());
 					//enviar requisição de tarefas
 					audienciasVisaoClient.insertTarefasLoteSapiens(tarefaLoteRequest);
+					pautistaAtual = pautaAtual.getPautista();
+					dataAtual = pautaAtual.getData();
+					processoListRequest.clear();
 				}else {
 					processoListRequest.add(pautaAtual.getProcesso());
 					tarefaLoteRequest.setPrazoFim(pautaAtual.getData().toString());
