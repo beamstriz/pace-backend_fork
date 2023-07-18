@@ -42,6 +42,8 @@ public class Pauta implements Serializable {
 	@Column(name = "nome_advogado")
 	private String nomeAdvogado;
 	private String objeto;
+	// @Column(name = "tarefa_sapiens")
+	// private boolean tarefaSapiens = false;
 
 	//  ATRIBUTOS DE MUTIRAO
 	private String vara;

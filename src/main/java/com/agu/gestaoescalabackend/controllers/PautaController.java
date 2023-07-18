@@ -45,7 +45,7 @@ public class PautaController {
 			@RequestParam(required = false) String dataInicial,
 			@RequestParam(required = false) String dataFinal, @RequestParam int page, @RequestParam int size) {
 		Page<Pauta> response = pautaService.findByFilters(hora, vara, sala, pautista, dataInicial, dataFinal, page,
-				size);
+			size);
 		return ResponseEntity.ok(response);
 	}
 
