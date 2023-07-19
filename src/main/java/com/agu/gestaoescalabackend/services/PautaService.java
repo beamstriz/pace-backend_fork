@@ -12,6 +12,7 @@ import com.agu.gestaoescalabackend.repositories.MutiraoRepository;
 import com.agu.gestaoescalabackend.repositories.PautaRepository;
 import com.agu.gestaoescalabackend.repositories.PautistaRepository;
 
+import feign.FeignException;
 import lombok.AllArgsConstructor;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -204,6 +205,15 @@ public class PautaService {
 	}
 
 	@Transactional
+	public void updateTarefaPauta(boolean estadoTarefa, List<Pauta> pauta) {
+		List <Pauta> pautasAtualizadas = pauta.stream().peek(p -> p.setTarefaSapiens(estadoTarefa)).collect(Collectors.toList());
+		pautaRepository.saveAll(pautasAtualizadas);
+	}
+
+
+
+
+	@Transactional
 	public void excluir(Long pautaDeAudienciaId) {
 		if (pautaRepository.existsById(pautaDeAudienciaId)) {
 
@@ -219,7 +229,7 @@ public class PautaService {
 	}
 
 	@Transactional
-	public void criarTarefasSapiens(InsertTarefasLoteDTO tarefasLoteDTO){
+	public void criarTarefasSapiens(InsertTarefasLoteDTO tarefasLoteDTO) throws FeignException{
 		Page<Pauta> pautas = findByFilters(
 				tarefasLoteDTO.getFiltroPautas().getHora(),
 				tarefasLoteDTO.getFiltroPautas().getVara(),
@@ -234,6 +244,7 @@ public class PautaService {
 		int paginas = pautas.getTotalPages();
 		int totalElementos = pautas.getContent().size();
 		List<Pauta> pautaList = pautas.getContent();
+		List<Pauta> listPautaEstadoTarefa = new ArrayList<>();
 		List<String>  processoListRequest = new ArrayList<>();
 		Pautista pautistaAtual = pautaList.get(0).getPautista();
 		LocalDate dataAtual = pautaList.get(0).getData();
@@ -267,12 +278,22 @@ public class PautaService {
 					tarefaLoteRequest.setUsuarioResponsavel(usuarioResponse.getId());
 					//enviar requisição de tarefas
 					audienciasVisaoClient.insertTarefasLoteSapiens(tarefaLoteRequest);
+					updateTarefaPauta(true, listPautaEstadoTarefa);
+
 					pautistaAtual = pautaAtual.getPautista();
 					dataAtual = pautaAtual.getData();
+
 					processoListRequest.clear();
+					listPautaEstadoTarefa.clear();
+
 					processoListRequest.add(pautaAtual.getProcesso());
+					listPautaEstadoTarefa.add(pautaAtual);
+
 				}else if(pautas.getContent().get(totalElementos - 1).equals(pautaAtual)) {
+
 					processoListRequest.add(pautaAtual.getProcesso());
+					listPautaEstadoTarefa.add(pautaAtual);
+
 					tarefaLoteRequest.setPrazoFim(pautaAtual.getData().toString());
 					tarefaLoteRequest.setPrazoInicio(pautaAtual.getData().minusDays(1).toString());
 
@@ -284,11 +305,15 @@ public class PautaService {
 					tarefaLoteRequest.setUsuarioResponsavel(usuarioResponse.getId());
 					//enviar requisição de tarefas
 					audienciasVisaoClient.insertTarefasLoteSapiens(tarefaLoteRequest);
+					updateTarefaPauta(true, listPautaEstadoTarefa);
+
 					pautistaAtual = pautaAtual.getPautista();
 					dataAtual = pautaAtual.getData();
 					processoListRequest.clear();
+					listPautaEstadoTarefa.clear();
 				}else {
 					processoListRequest.add(pautaAtual.getProcesso());
+					listPautaEstadoTarefa.add(pautaAtual);
 					tarefaLoteRequest.setPrazoFim(pautaAtual.getData().toString());
 					tarefaLoteRequest.setPrazoInicio(pautaAtual.getData().minusDays(1).toString());
 				}

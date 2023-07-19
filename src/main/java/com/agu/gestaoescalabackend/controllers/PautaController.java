@@ -8,6 +8,7 @@ import com.agu.gestaoescalabackend.repositories.PautaRepository;
 import com.agu.gestaoescalabackend.services.PautaService;
 
 import feign.Body;
+import feign.FeignException;
 import lombok.AllArgsConstructor;
 
 import org.apache.catalina.connector.Response;
@@ -99,7 +100,11 @@ public class PautaController {
 
 	@PostMapping("/cadastroTarefas")
 	public void cadastroTarefas(@RequestBody InsertTarefasLoteDTO tarefasLoteDTO){
-		pautaService.criarTarefasSapiens(tarefasLoteDTO);
+		try {
+			pautaService.criarTarefasSapiens(tarefasLoteDTO);	
+		} catch (FeignException e) {
+			System.out.println("Erro ao cadastrar as tarefas no Sapiens");		
+		}
 	}
 
 	/*------------------------------------------------
