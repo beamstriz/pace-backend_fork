@@ -32,13 +32,13 @@ public interface PautaRepository extends JpaRepository<Pauta, Long> {
 
 	List<Pauta> findAllByOrderByIdAsc();
 
-	@Query("SELECT pauta FROM Pauta pauta WHERE (:hora is null or pauta.hora = :hora) AND (:vara is null or pauta.vara = :vara) AND (:sala is null or pauta.sala = :sala) AND (:pautista is null or pauta.pautista = :pautista) AND pauta.pautista is not null AND (pauta.data BETWEEN :dataInicial AND :dataFinal) ORDER BY pauta.pautista.nome, pauta.data , pauta.hora  ASC")
+	@Query("SELECT pauta FROM Pauta pauta WHERE (pauta.tarefaSapiens = :tarefaSapiens) AND (:hora is null or pauta.hora = :hora) AND (:vara is null or pauta.vara = :vara) AND (:sala is null or pauta.sala = :sala) AND (:pautista is null or pauta.pautista = :pautista) AND pauta.pautista is not null AND (pauta.data BETWEEN :dataInicial AND :dataFinal) ORDER BY pauta.pautista.nome, pauta.data , pauta.hora  ASC")
 	Page<Pauta> findAllByHoraAndVaraAndSalaAndPautistaAndDataBetween(@Param("hora") String hora, @Param("vara")String vara, @Param("sala") String sala,
-	@Param("pautista") Pautista pautista, @Param("dataInicial") LocalDate dataInicial, @Param("dataFinal") LocalDate dataFinal, Pageable pageable);
+	@Param("pautista") Pautista pautista, @Param("dataInicial") LocalDate dataInicial, @Param("dataFinal") LocalDate dataFinal, Pageable pageable, @Param("tarefaSapiens") boolean tarefaSapiens);
 
-	@Query("SELECT pauta FROM Pauta pauta WHERE (:hora is null or pauta.hora = :hora) AND (:vara is null or pauta.vara = :vara) AND (:sala is null or pauta.sala = :sala) AND (:pautista is null or pauta.pautista = :pautista) AND pauta.pautista is not null ORDER BY pauta.data ASC, pauta.hora ASC")
+	@Query("SELECT pauta FROM Pauta pauta WHERE (pauta.tarefaSapiens = :tarefaSapiens) AND (:hora is null or pauta.hora = :hora) AND (:vara is null or pauta.vara = :vara) AND (:sala is null or pauta.sala = :sala) AND (:pautista is null or pauta.pautista = :pautista) AND pauta.pautista is not null ORDER BY pauta.data ASC, pauta.hora ASC")
 	Page<Pauta> findAllByHoraAndVaraAndSalaAndPautista(@Param("hora") String hora,@Param("vara") String vara, @Param("sala") String sala, @Param("pautista") Pautista pautista,
-			Pageable pageable);
+			Pageable pageable, @Param("tarefaSapiens") boolean tarefaSapiens);
 
 	Long countByDataBetween(LocalDate dataInicial, LocalDate dataFinal);
 

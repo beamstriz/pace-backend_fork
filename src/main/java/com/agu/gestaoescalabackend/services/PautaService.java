@@ -95,7 +95,7 @@ public class PautaService {
 
 	@Transactional(readOnly = true)
 	public Page<Pauta> findByFilters(String hora, String vara, String sala, Long pautista, String dataInicial,
-			String dataFinal, int page, int size) {
+			String dataFinal, int page, int size , boolean statusTarefa) {
 		Pageable pageable;
 		if (page == 0 && size == 0) {
 			pageable = Pageable.unpaged();
@@ -113,12 +113,12 @@ public class PautaService {
 			pautas = pautaRepository.findAllByHoraAndVaraAndSalaAndPautistaAndDataBetween(hora, vara, sala,
 					pautistaResponse, inicial,
 					finall,
-					pageable);
+					pageable, statusTarefa);
 
 			return pautas;
 		} else {
 			pautas = pautaRepository.findAllByHoraAndVaraAndSalaAndPautista(hora, vara, sala, pautistaResponse,
-					pageable);
+					pageable, statusTarefa);
 			return pautas;
 		}
 
@@ -238,7 +238,8 @@ public class PautaService {
 				tarefasLoteDTO.getFiltroPautas().getDataInicial(),
 				tarefasLoteDTO.getFiltroPautas().getDataFinal(),
 				tarefasLoteDTO.getFiltroPautas().getPage(),
-				tarefasLoteDTO.getFiltroPautas().getSize()
+				tarefasLoteDTO.getFiltroPautas().getSize(),
+				false
 		);
 
 		int paginas = pautas.getTotalPages();
@@ -261,7 +262,8 @@ public class PautaService {
 						tarefasLoteDTO.getFiltroPautas().getDataInicial(),
 						tarefasLoteDTO.getFiltroPautas().getDataFinal(),
 						i,
-						tarefasLoteDTO.getFiltroPautas().getSize()
+						tarefasLoteDTO.getFiltroPautas().getSize(),
+						false
 				);
 				totalElementos = pautas.getContent().size();
 				pautaList = pautas.getContent();
