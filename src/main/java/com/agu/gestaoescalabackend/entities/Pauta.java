@@ -2,6 +2,7 @@ package com.agu.gestaoescalabackend.entities;
 
 import com.agu.gestaoescalabackend.dto.PautaDto;
 import com.agu.gestaoescalabackend.dto.PautaOnlyDto;
+import com.agu.gestaoescalabackend.enums.StatusTarefa;
 import com.agu.gestaoescalabackend.enums.TipoPauta;
 import com.agu.gestaoescalabackend.enums.TurnoPauta;
 import com.agu.gestaoescalabackend.util.Conversor;
@@ -43,7 +44,8 @@ public class Pauta implements Serializable {
 	private String nomeAdvogado;
 	private String objeto;
 	@Column(name = "tarefa_sapiens")
-	private boolean tarefaSapiens = false;
+	@Enumerated(value = EnumType.STRING)
+	private StatusTarefa tarefaSapiens = StatusTarefa.NAO_CADASTRADA;
 
 	//  ATRIBUTOS DE MUTIRAO
 	private String vara;

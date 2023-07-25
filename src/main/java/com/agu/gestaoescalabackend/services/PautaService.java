@@ -8,6 +8,7 @@ import com.agu.gestaoescalabackend.dto.*;
 import com.agu.gestaoescalabackend.entities.Mutirao;
 import com.agu.gestaoescalabackend.entities.Pauta;
 import com.agu.gestaoescalabackend.entities.Pautista;
+import com.agu.gestaoescalabackend.enums.StatusTarefa;
 import com.agu.gestaoescalabackend.repositories.MutiraoRepository;
 import com.agu.gestaoescalabackend.repositories.PautaRepository;
 import com.agu.gestaoescalabackend.repositories.PautistaRepository;
@@ -95,7 +96,7 @@ public class PautaService {
 
 	@Transactional(readOnly = true)
 	public Page<Pauta> findByFilters(String hora, String vara, String sala, Long pautista, String dataInicial,
-			String dataFinal, int page, int size , boolean statusTarefa) {
+			String dataFinal, int page, int size , StatusTarefa statusTarefa) {
 		Pageable pageable;
 		if (page == 0 && size == 0) {
 			pageable = Pageable.unpaged();
@@ -205,7 +206,7 @@ public class PautaService {
 	}
 
 	@Transactional
-	public void updateTarefaPauta(boolean estadoTarefa, List<Pauta> pauta) {
+	public void updateTarefaPauta(StatusTarefa estadoTarefa, List<Pauta> pauta) {
 		List <Pauta> pautasAtualizadas = pauta.stream().peek(p -> p.setTarefaSapiens(estadoTarefa)).collect(Collectors.toList());
 		pautaRepository.saveAll(pautasAtualizadas);
 	}
@@ -239,7 +240,7 @@ public class PautaService {
 				tarefasLoteDTO.getFiltroPautas().getDataFinal(),
 				tarefasLoteDTO.getFiltroPautas().getPage(),
 				tarefasLoteDTO.getFiltroPautas().getSize(),
-				false
+				StatusTarefa.NAO_CADASTRADA
 		);
 
 		int paginas = pautas.getTotalPages();
@@ -263,7 +264,7 @@ public class PautaService {
 						tarefasLoteDTO.getFiltroPautas().getDataFinal(),
 						i,
 						tarefasLoteDTO.getFiltroPautas().getSize(),
-						false
+						StatusTarefa.NAO_CADASTRADA
 				);
 				totalElementos = pautas.getContent().size();
 				pautaList = pautas.getContent();
@@ -280,7 +281,7 @@ public class PautaService {
 					tarefaLoteRequest.setUsuarioResponsavel(usuarioResponse.getId());
 					//enviar requisição de tarefas
 					audienciasVisaoClient.insertTarefasLoteSapiens(tarefaLoteRequest);
-					updateTarefaPauta(true, listPautaEstadoTarefa);
+					updateTarefaPauta(StatusTarefa.CADASTRADA, listPautaEstadoTarefa);
 
 					pautistaAtual = pautaAtual.getPautista();
 					dataAtual = pautaAtual.getData();
@@ -307,7 +308,7 @@ public class PautaService {
 					tarefaLoteRequest.setUsuarioResponsavel(usuarioResponse.getId());
 					//enviar requisição de tarefas
 					audienciasVisaoClient.insertTarefasLoteSapiens(tarefaLoteRequest);
-					updateTarefaPauta(true, listPautaEstadoTarefa);
+					updateTarefaPauta(StatusTarefa.CADASTRADA, listPautaEstadoTarefa);
 
 					pautistaAtual = pautaAtual.getPautista();
 					dataAtual = pautaAtual.getData();
