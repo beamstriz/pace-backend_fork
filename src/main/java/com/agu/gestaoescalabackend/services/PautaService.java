@@ -38,11 +38,11 @@ import java.util.stream.Collectors;
 @Service
 @AllArgsConstructor
 public class PautaService {
-	
+
 	private PautaRepository pautaRepository;
-	
+
 	private PautistaRepository pautistaRepository;
-	
+
 	private MutiraoService mutiraoService;
 
 	private AudienciasVisaoClient audienciasVisaoClient;
@@ -56,7 +56,7 @@ public class PautaService {
 	}
 
 	@Transactional
-	public List<PautaDto> findAllByMutiraoId(long mutiraoId){
+	public List<PautaDto> findAllByMutiraoId(long mutiraoId) {
 
 		return pautaRepository.findAllByMutiraoId(mutiraoId)
 				.stream()
@@ -65,23 +65,25 @@ public class PautaService {
 
 	}
 
-	/* @Transactional
-	public List<PautaDto> findAllByPautistaId(long PautistaId){
-
-		return pautaRepository.findAllByPautistaId(PautistaId)
-				.stream()
-				.map(Pauta::toDto)
-				.collect(Collectors.toList());
-
-	} */
+	/*
+	 * @Transactional
+	 * public List<PautaDto> findAllByPautistaId(long PautistaId){
+	 * 
+	 * return pautaRepository.findAllByPautistaId(PautistaId)
+	 * .stream()
+	 * .map(Pauta::toDto)
+	 * .collect(Collectors.toList());
+	 * 
+	 * }
+	 */
 
 	@Transactional
-	public List<Pauta> findAllByPautistaId(long PautistaId){
+	public List<Pauta> findAllByPautistaId(long PautistaId) {
 		return pautaRepository.findAllByPautistaId(PautistaId);
 	}
 
 	@Transactional
-	public List<PautaOnlyDto> findAllPautaOnlyByPautistaId(long PautistaId){
+	public List<PautaOnlyDto> findAllPautaOnlyByPautistaId(long PautistaId) {
 		return pautaRepository.findAllByPautistaId(PautistaId)
 				.stream()
 				.map(Pauta::toPautaOnlyDto)
@@ -89,14 +91,13 @@ public class PautaService {
 	}
 
 	@Transactional
-	public boolean existsByPautistaAndData(PautistaDto pautista, LocalDate data){
+	public boolean existsByPautistaAndData(PautistaDto pautista, LocalDate data) {
 		return pautaRepository.existsByPautistaAndData(pautista.toEntity(), data);
 	}
 
-
 	@Transactional(readOnly = true)
 	public Page<Pauta> findByFilters(String hora, String vara, String sala, Long pautista, String dataInicial,
-			String dataFinal, int page, int size , StatusTarefa statusTarefa) {
+			String dataFinal, int page, int size, StatusTarefa statusTarefa) {
 		Pageable pageable;
 		if (page == 0 && size == 0) {
 			pageable = Pageable.unpaged();
@@ -159,32 +160,31 @@ public class PautaService {
 
 	@Transactional
 	public List<PautaDto> saveAllGeracaoEscala(List<PautaDto> listaPautaDto) {
-		List <Pauta> pautaListEntity = listaPautaDto.stream()
-		.map(PautaDto::toEntity)
-		.collect(Collectors.toList());
+		List<Pauta> pautaListEntity = listaPautaDto.stream()
+				.map(PautaDto::toEntity)
+				.collect(Collectors.toList());
 
 		return pautaRepository.saveAll(pautaListEntity)
-		.stream()
-		.map(Pauta::toDto)
-		.collect(Collectors.toList());
+				.stream()
+				.map(Pauta::toDto)
+				.collect(Collectors.toList());
 	}
 
 	@Transactional
 	public List<PautaDto> saveAll(List<PautaDto> listaPautaDto) {
 
 		Mutirao mutirao = mutiraoService.save(listaPautaDto).toEntity();
-		for (PautaDto pautaDto : listaPautaDto) {		
+		for (PautaDto pautaDto : listaPautaDto) {
 			Pauta pauta = pautaDto.toEntity();
 			pauta.setMutirao(mutirao);
 			if (validarCriacao(pautaDto, pauta)) {
 				pautaRepository.save(pauta);
-			}else{
+			} else {
 				mutiraoService.excluir(mutirao.getId());
 				return null;
 			}
 		}
-		
-		
+
 		return pautaRepository.findAllByMutiraoId(mutirao.getId())
 				.stream()
 				.map(Pauta::toDto)
@@ -207,12 +207,10 @@ public class PautaService {
 
 	@Transactional
 	public void updateTarefaPauta(StatusTarefa estadoTarefa, List<Pauta> pauta) {
-		List <Pauta> pautasAtualizadas = pauta.stream().peek(p -> p.setTarefaSapiens(estadoTarefa)).collect(Collectors.toList());
+		List<Pauta> pautasAtualizadas = pauta.stream().peek(p -> p.setTarefaSapiens(estadoTarefa))
+				.collect(Collectors.toList());
 		pautaRepository.saveAll(pautasAtualizadas);
 	}
-
-
-
 
 	@Transactional
 	public void excluir(Long pautaDeAudienciaId) {
@@ -230,106 +228,87 @@ public class PautaService {
 	}
 
 	@Transactional
-	public void criarTarefasSapiens(InsertTarefasLoteDTO tarefasLoteDTO) throws FeignException{
-		Page<Pauta> pautas = findByFilters(
-				tarefasLoteDTO.getFiltroPautas().getHora(),
-				tarefasLoteDTO.getFiltroPautas().getVara(),
-				tarefasLoteDTO.getFiltroPautas().getSala(),
-				tarefasLoteDTO.getFiltroPautas().getPautista(),
-				tarefasLoteDTO.getFiltroPautas().getDataInicial(),
-				tarefasLoteDTO.getFiltroPautas().getDataFinal(),
-				tarefasLoteDTO.getFiltroPautas().getPage(),
-				tarefasLoteDTO.getFiltroPautas().getSize(),
-				StatusTarefa.NAO_CADASTRADA
-		);
+	public void criarTarefasSapiens(InsertTarefasLoteDTO tarefasLoteDTO) throws FeignException {
+		int page = 0;
+		int size = tarefasLoteDTO.getFiltroPautas().getSize();
+		Page<Pauta> pautas;
 
-		int paginas = pautas.getTotalPages();
-		int totalElementos = pautas.getContent().size();
-		List<Pauta> pautaList = pautas.getContent();
+		do {
+			pautas = findByFilters(
+					tarefasLoteDTO.getFiltroPautas().getHora(),
+					tarefasLoteDTO.getFiltroPautas().getVara(),
+					tarefasLoteDTO.getFiltroPautas().getSala(),
+					tarefasLoteDTO.getFiltroPautas().getPautista(),
+					tarefasLoteDTO.getFiltroPautas().getDataInicial(),
+					tarefasLoteDTO.getFiltroPautas().getDataFinal(),
+					page,
+					size,
+					null);
+
+			if (!pautas.isEmpty()) {
+				processarPautas(pautas.getContent(), tarefasLoteDTO);
+			}
+
+			page++;
+		} while (page < pautas.getTotalPages());
+	}
+
+	private void processarPautas(List<Pauta> pautas, InsertTarefasLoteDTO tarefasLoteDTO) throws FeignException {
+		Pautista pautistaAtual = pautas.get(0).getPautista();
+		LocalDate dataAtual = pautas.get(0).getData();
+		List<String> processoListRequest = new ArrayList<>();
 		List<Pauta> listPautaEstadoTarefa = new ArrayList<>();
-		List<String>  processoListRequest = new ArrayList<>();
-		Pautista pautistaAtual = pautaList.get(0).getPautista();
-		LocalDate dataAtual = pautaList.get(0).getData();
-
 		TarefaLoteRequest tarefaLoteRequest = tarefasLoteDTO.toRequest();
-		for (int i = 0; i < paginas ; i++) {
 
-			if(i>0) {
-				pautas = findByFilters(
-						tarefasLoteDTO.getFiltroPautas().getHora(),
-						tarefasLoteDTO.getFiltroPautas().getVara(),
-						tarefasLoteDTO.getFiltroPautas().getSala(),
-						tarefasLoteDTO.getFiltroPautas().getPautista(),
-						tarefasLoteDTO.getFiltroPautas().getDataInicial(),
-						tarefasLoteDTO.getFiltroPautas().getDataFinal(),
-						i,
-						tarefasLoteDTO.getFiltroPautas().getSize(),
-						StatusTarefa.NAO_CADASTRADA
-				);
-				totalElementos = pautas.getContent().size();
-				pautaList = pautas.getContent();
-				dataAtual = pautaList.get(0).getData();
+		for (Pauta pautaAtual : pautas) {
+			if (!pautaAtual.getPautista().equals(pautistaAtual)
+					|| !pautaAtual.getData().equals(dataAtual)) {
+
+				tarefaLoteRequest.setListaProcessosJudiciais(processoListRequest);
+
+				UsuarioResponsavelRequest usuarioResponsavel = new UsuarioResponsavelRequest(
+						tarefasLoteDTO.getLogin(), pautistaAtual.getNome().toUpperCase(),
+						tarefasLoteDTO.getSetorResponsavel());
+
+				UsuarioResponsavelResponse usuarioResponse = audienciasVisaoClient
+						.getUsuarioResponsavel(usuarioResponsavel);
+				tarefaLoteRequest.setUsuarioResponsavel(usuarioResponse.getId());
+				// enviar requisição de tarefas
+				audienciasVisaoClient.insertTarefasLoteSapiens(tarefaLoteRequest);
+				updateTarefaPauta(StatusTarefa.CADASTRADA, listPautaEstadoTarefa);
+
+				pautistaAtual = pautaAtual.getPautista();
+				dataAtual = pautaAtual.getData();
+
+				processoListRequest.clear();
+				listPautaEstadoTarefa.clear();
+
+				processoListRequest.add(pautaAtual.getProcesso());
+				listPautaEstadoTarefa.add(pautaAtual);
 			}
 
-			for (Pauta pautaAtual : pautaList) {
-				if(!pautaAtual.getPautista().equals(pautistaAtual) || !dataAtual.equals(pautaAtual.getData())){
-					tarefaLoteRequest.setListaProcessosJudiciais(processoListRequest);
-					UsuarioResponsavelRequest usuarioResponsavel = new UsuarioResponsavelRequest(
-							tarefasLoteDTO.getLogin(),pautistaAtual.getNome().toUpperCase(), tarefasLoteDTO.getSetorResponsavel()
-					);
-					UsuarioResponsavelResponse usuarioResponse = audienciasVisaoClient.getUsuarioResponsavel(usuarioResponsavel);
-					tarefaLoteRequest.setUsuarioResponsavel(usuarioResponse.getId());
-					//enviar requisição de tarefas
-					audienciasVisaoClient.insertTarefasLoteSapiens(tarefaLoteRequest);
-					updateTarefaPauta(StatusTarefa.CADASTRADA, listPautaEstadoTarefa);
-
-					pautistaAtual = pautaAtual.getPautista();
-					dataAtual = pautaAtual.getData();
-
-					processoListRequest.clear();
-					listPautaEstadoTarefa.clear();
-
-					processoListRequest.add(pautaAtual.getProcesso());
-					listPautaEstadoTarefa.add(pautaAtual);
-
-				}else if(pautas.getContent().get(totalElementos - 1).equals(pautaAtual)) {
-
-					processoListRequest.add(pautaAtual.getProcesso());
-					listPautaEstadoTarefa.add(pautaAtual);
-
-					tarefaLoteRequest.setPrazoFim(pautaAtual.getData().toString());
-					tarefaLoteRequest.setPrazoInicio(pautaAtual.getData().minusDays(1).toString());
-
-					tarefaLoteRequest.setListaProcessosJudiciais(processoListRequest);
-					UsuarioResponsavelRequest usuarioResponsavel = new UsuarioResponsavelRequest(
-							tarefasLoteDTO.getLogin(), pautistaAtual.getNome(), tarefasLoteDTO.getSetorResponsavel()
-					);
-					UsuarioResponsavelResponse usuarioResponse = audienciasVisaoClient.getUsuarioResponsavel(usuarioResponsavel);
-					tarefaLoteRequest.setUsuarioResponsavel(usuarioResponse.getId());
-					//enviar requisição de tarefas
-					audienciasVisaoClient.insertTarefasLoteSapiens(tarefaLoteRequest);
-					updateTarefaPauta(StatusTarefa.CADASTRADA, listPautaEstadoTarefa);
-
-					pautistaAtual = pautaAtual.getPautista();
-					dataAtual = pautaAtual.getData();
-					processoListRequest.clear();
-					listPautaEstadoTarefa.clear();
-				}else {
-					processoListRequest.add(pautaAtual.getProcesso());
-					listPautaEstadoTarefa.add(pautaAtual);
-					tarefaLoteRequest.setPrazoFim(pautaAtual.getData().toString());
-					tarefaLoteRequest.setPrazoInicio(pautaAtual.getData().minusDays(1).toString());
-				}
-
-
-			}
+			// ... Lógica para adicionar elementos nas listas processoListRequest e
+			// listPautaEstadoTarefa ...
+			processoListRequest.add(pautaAtual.getProcesso());
+			listPautaEstadoTarefa.add(pautaAtual);
+			tarefaLoteRequest.setPrazoFim(pautaAtual.getData().toString());
+			tarefaLoteRequest.setPrazoInicio(pautaAtual.getData().minusDays(1).toString() + pautaAtual.getHora());
 		}
 
-		//List<Pauta> pautaList = new ArrayList<>(pautas.getContent());
-		//List<Pauta> listaOrdenada = new ArrayList<>(pautaList);
-		//listaOrdenada.sort(Comparator.comparing(pauta -> pauta.getPautista().getNome()));
+		// Processa as últimas pautas (caso existam)
+		if (!processoListRequest.isEmpty()) {
+			tarefaLoteRequest.setListaProcessosJudiciais(processoListRequest);
 
-		System.out.println("cabou");
+			UsuarioResponsavelRequest usuarioResponsavel = new UsuarioResponsavelRequest(
+					tarefasLoteDTO.getLogin(), pautistaAtual.getNome(), tarefasLoteDTO.getSetorResponsavel());
+			UsuarioResponsavelResponse usuarioResponse = audienciasVisaoClient
+					.getUsuarioResponsavel(usuarioResponsavel);
+			tarefaLoteRequest.setUsuarioResponsavel(usuarioResponse.getId());
+
+			// enviar requisição de tarefas
+			audienciasVisaoClient.insertTarefasLoteSapiens(tarefaLoteRequest);
+			updateTarefaPauta(StatusTarefa.CADASTRADA, listPautaEstadoTarefa);
+		}
 	}
 
 	/*------------------------------------------------
@@ -339,13 +318,14 @@ public class PautaService {
 		// Instancia um objeto base para verificar se já existe um registro 'nome'
 		// no banco igual ao do DTO
 		try {
-			boolean pautaExistente = pautaRepository.existsByProcessoAndDataAndHora(pautaDto.getProcesso(), pautaDto.getData(), pautaDto.getHora());
+			boolean pautaExistente = pautaRepository.existsByProcessoAndDataAndHora(pautaDto.getProcesso(),
+					pautaDto.getData(), pautaDto.getHora());
 			if (pautaExistente == true) {
 				return false;
-			}else{
+			} else {
 				return true;
 			}
-			
+
 		} catch (Exception e) {
 			System.err.println("e.getMessage()");
 			System.err.println(e.getMessage());
@@ -355,5 +335,5 @@ public class PautaService {
 		 * return (pautaExistente == null || pautaExistente.equals(pauta)
 		 * || !(pautaExistente.getData().isEqual(pauta.getData())));
 		 */
-	} 
+	}
 }
