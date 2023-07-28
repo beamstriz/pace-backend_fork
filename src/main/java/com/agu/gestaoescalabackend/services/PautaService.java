@@ -227,7 +227,6 @@ public class PautaService {
 		}
 	}
 
-	@Transactional
 	public void criarTarefasSapiens(InsertTarefasLoteDTO tarefasLoteDTO) throws FeignException {
 		int page = 0;
 		int size = tarefasLoteDTO.getFiltroPautas().getSize();
@@ -285,14 +284,18 @@ public class PautaService {
 
 				processoListRequest.add(pautaAtual.getProcesso());
 				listPautaEstadoTarefa.add(pautaAtual);
+
+				tarefaLoteRequest.setPrazoFim(pautaAtual.getData().toString() + pautaAtual.getHora());
+				tarefaLoteRequest.setPrazoInicio(pautaAtual.getData().minusDays(1).toString() + pautaAtual.getHora());
+			}else{
+				// ... Lógica para adicionar elementos nas listas processoListRequest e
+				// listPautaEstadoTarefa ...
+				processoListRequest.add(pautaAtual.getProcesso());
+				listPautaEstadoTarefa.add(pautaAtual);
+				tarefaLoteRequest.setPrazoFim(pautaAtual.getData().toString() + pautaAtual.getHora());
+				tarefaLoteRequest.setPrazoInicio(pautaAtual.getData().minusDays(1).toString() + pautaAtual.getHora());
 			}
 
-			// ... Lógica para adicionar elementos nas listas processoListRequest e
-			// listPautaEstadoTarefa ...
-			processoListRequest.add(pautaAtual.getProcesso());
-			listPautaEstadoTarefa.add(pautaAtual);
-			tarefaLoteRequest.setPrazoFim(pautaAtual.getData().toString());
-			tarefaLoteRequest.setPrazoInicio(pautaAtual.getData().minusDays(1).toString() + pautaAtual.getHora());
 		}
 
 		// Processa as últimas pautas (caso existam)
