@@ -103,11 +103,13 @@ public class PautaController {
 	}
 
 	@PostMapping("/cadastroTarefas")
-	public void cadastroTarefas(@RequestBody InsertTarefasLoteDTO tarefasLoteDTO){
+	public ResponseEntity<List<PautaDto>> cadastroTarefas(@RequestBody InsertTarefasLoteDTO tarefasLoteDTO){
 		try {
-			pautaService.criarTarefasSapiens(tarefasLoteDTO);	
+			List<PautaDto> pautaList = pautaService.criarTarefasSapiens(tarefasLoteDTO);	
+			return ResponseEntity.ok(pautaList);
 		} catch (FeignException e) {
-			System.out.println("Erro ao cadastrar as tarefas no Sapiens");		
+			System.out.println("Erro ao cadastrar as tarefas no Sapiens");
+			return ResponseEntity.noContent().build();
 		}
 	}
 

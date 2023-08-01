@@ -1,14 +1,14 @@
 package com.agu.gestaoescalabackend.client.response;
 
+
+import java.util.List;
+
 import lombok.Data;
 
 @Data
 public class TarefaLoteResponse{
 
-    private String dataHora;
-    private String sala;
-    private String processo;
-    private String[] interessados;
-    private String vara;
+    private String menssagem;
+    private List<String> processosNaoEncontrados;
 
 }

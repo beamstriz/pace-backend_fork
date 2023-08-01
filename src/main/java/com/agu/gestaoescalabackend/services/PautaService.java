@@ -3,6 +3,7 @@ package com.agu.gestaoescalabackend.services;
 import com.agu.gestaoescalabackend.client.AudienciasVisaoClient;
 import com.agu.gestaoescalabackend.client.request.TarefaLoteRequest;
 import com.agu.gestaoescalabackend.client.request.UsuarioResponsavelRequest;
+import com.agu.gestaoescalabackend.client.response.TarefaLoteResponse;
 import com.agu.gestaoescalabackend.client.response.UsuarioResponsavelResponse;
 import com.agu.gestaoescalabackend.dto.*;
 import com.agu.gestaoescalabackend.entities.Mutirao;
@@ -227,7 +228,7 @@ public class PautaService {
 		}
 	}
 
-	public void criarTarefasSapiens(InsertTarefasLoteDTO tarefasLoteDTO) throws FeignException {
+	public List<PautaDto> criarTarefasSapiens(InsertTarefasLoteDTO tarefasLoteDTO) throws FeignException {
 		int page = 0;
 		int size = tarefasLoteDTO.getFiltroPautas().getSize();
 		Page<Pauta> pautas;
@@ -250,6 +251,23 @@ public class PautaService {
 
 			page++;
 		} while (page < pautas.getTotalPages());
+
+		pautas = findByFilters(
+					tarefasLoteDTO.getFiltroPautas().getHora(),
+					tarefasLoteDTO.getFiltroPautas().getVara(),
+					tarefasLoteDTO.getFiltroPautas().getSala(),
+					tarefasLoteDTO.getFiltroPautas().getPautista(),
+					tarefasLoteDTO.getFiltroPautas().getDataInicial(),
+					tarefasLoteDTO.getFiltroPautas().getDataFinal(),
+					page,
+					size,
+					StatusTarefa.NAO_CADASTRADA);
+		
+		List<PautaDto> pautaList = pautas.getContent().stream()
+				.map(Pauta::toDto)
+				.collect(Collectors.toList());
+		
+		return pautaList;
 	}
 
 	private void processarPautas(List<Pauta> pautas, InsertTarefasLoteDTO tarefasLoteDTO) throws FeignException {
@@ -273,7 +291,8 @@ public class PautaService {
 						.getUsuarioResponsavel(usuarioResponsavel);
 				tarefaLoteRequest.setUsuarioResponsavel(usuarioResponse.getId());
 				// enviar requisição de tarefas
-				audienciasVisaoClient.insertTarefasLoteSapiens(tarefaLoteRequest);
+				TarefaLoteResponse response = audienciasVisaoClient.insertTarefasLoteSapiens(tarefaLoteRequest);
+				listPautaEstadoTarefa.removeIf(pauta -> response.getProcessosNaoEncontrados().contains(pauta.getProcesso()));
 				updateTarefaPauta(StatusTarefa.CADASTRADA, listPautaEstadoTarefa);
 
 				pautistaAtual = pautaAtual.getPautista();
@@ -309,7 +328,8 @@ public class PautaService {
 			tarefaLoteRequest.setUsuarioResponsavel(usuarioResponse.getId());
 
 			// enviar requisição de tarefas
-			audienciasVisaoClient.insertTarefasLoteSapiens(tarefaLoteRequest);
+			TarefaLoteResponse response = audienciasVisaoClient.insertTarefasLoteSapiens(tarefaLoteRequest);
+			listPautaEstadoTarefa.removeIf(pauta -> response.getProcessosNaoEncontrados().contains(pauta.getProcesso()));
 			updateTarefaPauta(StatusTarefa.CADASTRADA, listPautaEstadoTarefa);
 		}
 	}
