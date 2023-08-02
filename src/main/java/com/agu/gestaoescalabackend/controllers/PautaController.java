@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping(value = "/pauta")
@@ -103,9 +104,9 @@ public class PautaController {
 	}
 
 	@PostMapping("/cadastroTarefas")
-	public ResponseEntity<List<PautaDto>> cadastroTarefas(@RequestBody InsertTarefasLoteDTO tarefasLoteDTO){
+	public ResponseEntity<List<Pauta>> cadastroTarefas(@RequestBody InsertTarefasLoteDTO tarefasLoteDTO){
 		try {
-			List<PautaDto> pautaList = pautaService.criarTarefasSapiens(tarefasLoteDTO);	
+			List<Pauta> pautaList = pautaService.criarTarefasSapiens(tarefasLoteDTO);
 			return ResponseEntity.ok(pautaList);
 		} catch (FeignException e) {
 			System.out.println("Erro ao cadastrar as tarefas no Sapiens");
