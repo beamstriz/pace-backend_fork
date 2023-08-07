@@ -261,12 +261,13 @@ public class PautaService {
 	private List<Pauta> processarPautas(List<Pauta> pautas, InsertTarefasLoteDTO tarefasLoteDTO) throws FeignException {
 		Pautista pautistaAtual = pautas.get(0).getPautista();
 		LocalDate dataAtual = pautas.get(0).getData();
-		List<String> processoListRequest = new ArrayList<>();
+		List<ProcessoJudicialDTO> processoListRequest = new ArrayList<>();
 		List<Pauta> listPautaEstadoTarefa = new ArrayList<>();
 		List<Pauta> listProcessosNaoCadastrados = new ArrayList<>();
 		TarefaLoteRequest tarefaLoteRequest = tarefasLoteDTO.toRequest();
 
 		for (Pauta pautaAtual : pautas) {
+			ProcessoJudicialDTO processoAtual = new ProcessoJudicialDTO();
 			if (!pautaAtual.getPautista().equals(pautistaAtual)
 					|| !pautaAtual.getData().equals(dataAtual)) {
 
@@ -296,18 +297,24 @@ public class PautaService {
 				processoListRequest.clear();
 				listPautaEstadoTarefa.clear();
 
-				processoListRequest.add(pautaAtual.getProcesso());
+				processoAtual.setNumeroProcesso(pautaAtual.getProcesso());
+				processoAtual.setPrazoInicio(pautaAtual.getData().minusDays(1) + " " +pautaAtual.getHora());
+				processoAtual.setPrazoFim(pautaAtual.getData() + " " + pautaAtual.getHora());
+
+				processoListRequest.add(processoAtual);
+
 				listPautaEstadoTarefa.add(pautaAtual);
 
-				tarefaLoteRequest.setPrazoFim(pautaAtual.getData().toString() + pautaAtual.getHora());
-				tarefaLoteRequest.setPrazoInicio(pautaAtual.getData().minusDays(1).toString() + pautaAtual.getHora());
 			} else {
 				// ... Lógica para adicionar elementos nas listas processoListRequest e
 				// listPautaEstadoTarefa ...
-				processoListRequest.add(pautaAtual.getProcesso());
+
+				processoAtual.setNumeroProcesso(pautaAtual.getProcesso());
+				processoAtual.setPrazoInicio(pautaAtual.getData().minusDays(1) + " " +pautaAtual.getHora());
+				processoAtual.setPrazoFim(pautaAtual.getData() + " " + pautaAtual.getHora());
+
+				processoListRequest.add(processoAtual);
 				listPautaEstadoTarefa.add(pautaAtual);
-				tarefaLoteRequest.setPrazoFim(pautaAtual.getData().toString() + pautaAtual.getHora());
-				tarefaLoteRequest.setPrazoInicio(pautaAtual.getData().minusDays(1).toString() + pautaAtual.getHora());
 			}
 
 		}
@@ -323,6 +330,7 @@ public class PautaService {
 			tarefaLoteRequest.setUsuarioResponsavel(usuarioResponse.getId());
 
 			// enviar requisição de tarefas
+			// o erro está aqui
 			TarefaLoteResponse response = audienciasVisaoClient.insertTarefasLoteSapiens(tarefaLoteRequest);
 			listPautaEstadoTarefa.removeIf(pauta -> {
 				boolean isRemovida = response.getProcessosNaoEncontrados().contains(pauta.getProcesso());

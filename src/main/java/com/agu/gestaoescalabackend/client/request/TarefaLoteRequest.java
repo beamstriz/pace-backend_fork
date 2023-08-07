@@ -1,7 +1,8 @@
 package com.agu.gestaoescalabackend.client.request;
 
-import com.agu.gestaoescalabackend.dto.FiltroDTO;
 import com.agu.gestaoescalabackend.dto.LoginDTO;
+import com.agu.gestaoescalabackend.dto.ProcessoJudicialDTO;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -25,11 +26,6 @@ public class TarefaLoteRequest {
     private int usuarioResponsavel; //back
 
     @NotNull
-    private String prazoInicio; // back
-    @NotNull
-    private String prazoFim; // back
-
-    @NotNull
-    private List<String> listaProcessosJudiciais; // back
+    private List<ProcessoJudicialDTO> listaProcessosJudiciais;
 
 }
