@@ -107,8 +107,13 @@ public class PautaController {
 	public ResponseEntity<List<Pauta>> cadastroTarefas(@RequestBody InsertTarefasLoteDTO tarefasLoteDTO){
 		try {
 			List<Pauta> pautaList = pautaService.criarTarefasSapiens(tarefasLoteDTO);
+
+			if (pautaList.isEmpty()) {
+				return ResponseEntity.noContent().build();
+			}
+
 			return ResponseEntity.ok(pautaList);
-		} catch (FeignException e) {
+		} catch (Exception e) {
 			System.out.println("Erro ao cadastrar as tarefas no Sapiens");
 			return ResponseEntity.noContent().build();
 		}
