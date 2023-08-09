@@ -215,18 +215,20 @@ public class PautaService {
 
 	//remove processos nao existentes no sapiens para que nao sejam att no bd
 	private void filtroProcessosNaoEncontrados(List<Pauta> listPautaEstadoTarefa, TarefaLoteResponse response, List<Pauta> listProcessosNaoCadastrados){
-		List<String> processosNaoEncontrados = new ArrayList<>();
+		if (response != null && response.getProcessosNaoEncontrados() != null) {
+			List<String> processosNaoEncontrados = new ArrayList<>();
 
-		for (ProcessoJudicialDTO processo : response.getProcessosNaoEncontrados()) {
-			processosNaoEncontrados.add(processo.getNumeroProcesso());
-		}
-		listPautaEstadoTarefa.removeIf(pauta -> {
-			boolean isRemovida = processosNaoEncontrados.contains(pauta.getProcesso());
-			if (isRemovida) {
-				listProcessosNaoCadastrados.add(pauta);
+			for (ProcessoJudicialDTO processo : response.getProcessosNaoEncontrados()) {
+				processosNaoEncontrados.add(processo.getNumeroProcesso());
 			}
-			return isRemovida;
-		});
+			listPautaEstadoTarefa.removeIf(pauta -> {
+				boolean isRemovida = processosNaoEncontrados.contains(pauta.getProcesso());
+				if (isRemovida) {
+					listProcessosNaoCadastrados.add(pauta);
+				}
+				return isRemovida;
+			});
+		}
 	}
 
 	@Transactional

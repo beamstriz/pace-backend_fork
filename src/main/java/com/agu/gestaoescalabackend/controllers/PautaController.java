@@ -115,7 +115,7 @@ public class PautaController {
 			return ResponseEntity.ok(pautaList);
 		} catch (Exception e) {
 			System.out.println("Erro ao cadastrar as tarefas no Sapiens");
-			return ResponseEntity.noContent().build();
+			return ResponseEntity.badRequest().build();
 		}
 	}
 
