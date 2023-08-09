@@ -213,6 +213,22 @@ public class PautaService {
 		pautaRepository.saveAll(pautasAtualizadas);
 	}
 
+	//remove processos nao existentes no sapiens para que nao sejam att no bd
+	private void filtroProcessosNaoEncontrados(List<Pauta> listPautaEstadoTarefa, TarefaLoteResponse response, List<Pauta> listProcessosNaoCadastrados){
+		List<String> processosNaoEncontrados = new ArrayList<>();
+
+		for (ProcessoJudicialDTO processo : response.getProcessosNaoEncontrados()) {
+			processosNaoEncontrados.add(processo.getNumeroProcesso());
+		}
+		listPautaEstadoTarefa.removeIf(pauta -> {
+			boolean isRemovida = processosNaoEncontrados.contains(pauta.getProcesso());
+			if (isRemovida) {
+				listProcessosNaoCadastrados.add(pauta);
+			}
+			return isRemovida;
+		});
+	}
+
 	@Transactional
 	public void excluir(Long pautaDeAudienciaId) {
 		if (pautaRepository.existsById(pautaDeAudienciaId)) {
@@ -278,27 +294,16 @@ public class PautaService {
 						tarefasLoteDTO.getSetorResponsavel());
 
 				UsuarioResponsavelResponse usuarioResponse = audienciasVisaoClient
-						.getUsuarioResponsavel(usuarioResponsavel);
+					.getUsuarioResponsavel(usuarioResponsavel);
 				tarefaLoteRequest.setUsuarioResponsavel(usuarioResponse.getId());
 				// enviar requisição de tarefas
 				TarefaLoteResponse response = audienciasVisaoClient.insertTarefasLoteSapiens(tarefaLoteRequest);
-				if (response != null && response.getProcessosNaoEncontrados() != null) {
-					List<String> processosNaoEncontrados = new ArrayList<>();
 
-					for (ProcessoJudicialDTO processo : response.getProcessosNaoEncontrados()) {
-						processosNaoEncontrados.add(processo.getNumeroProcesso());
-					}
-					listPautaEstadoTarefa.removeIf(pauta -> {
-						boolean isRemovida = processosNaoEncontrados.contains(pauta.getProcesso());
-						if (isRemovida) {
-							listProcessosNaoCadastrados.add(pauta);
-						}
-						return isRemovida;
-					});
-				}
+				filtroProcessosNaoEncontrados(listPautaEstadoTarefa, response, listProcessosNaoCadastrados);
 
 				updateTarefaPauta(StatusTarefa.CADASTRADA, listPautaEstadoTarefa);
 
+				//atualização das variaveis de controle
 				pautistaAtual = pautaAtual.getPautista();
 				dataAtual = pautaAtual.getData();
 
@@ -340,20 +345,7 @@ public class PautaService {
 			// enviar requisição de tarefas
 			// o erro está aqui
 			TarefaLoteResponse response = audienciasVisaoClient.insertTarefasLoteSapiens(tarefaLoteRequest);
-			if (response != null && response.getProcessosNaoEncontrados() != null) {
-				List<String> processosNaoEncontrados = new ArrayList<>();
-
-				for (ProcessoJudicialDTO processo : response.getProcessosNaoEncontrados()) {
-					processosNaoEncontrados.add(processo.getNumeroProcesso());
-				}
-				listPautaEstadoTarefa.removeIf(pauta -> {
-					boolean isRemovida = processosNaoEncontrados.contains(pauta.getProcesso());
-					if (isRemovida) {
-						listProcessosNaoCadastrados.add(pauta);
-					}
-					return isRemovida;
-				});
-			}
+			filtroProcessosNaoEncontrados(listPautaEstadoTarefa, response, listProcessosNaoCadastrados);
 			updateTarefaPauta(StatusTarefa.CADASTRADA, listPautaEstadoTarefa);
 		}
 
