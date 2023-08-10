@@ -23,7 +23,7 @@ public class TarefaLoteRequest {
     @NotNull
     private int setorResponsavel; //vem do front
     @NotNull
-    private int usuarioResponsavel; //back
+    private Long usuarioResponsavel; //back
 
     @NotNull
     private List<ProcessoJudicialDTO> listaProcessosJudiciais;

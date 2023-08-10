@@ -3,12 +3,8 @@ package com.agu.gestaoescalabackend.entities;
 import com.agu.gestaoescalabackend.dto.PautistaDto;
 import com.agu.gestaoescalabackend.enums.GrupoPautista;
 import com.agu.gestaoescalabackend.enums.StatusPautista;
-import com.agu.gestaoescalabackend.services.PautaService;
 import com.agu.gestaoescalabackend.util.Conversor;
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -33,6 +29,10 @@ public class Pautista implements Serializable, Comparable<Pautista> {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(unique = true)
+    private Long idSapiens;
+
     @Column(unique = true)
     private String nome;
     @Enumerated(value = EnumType.STRING)

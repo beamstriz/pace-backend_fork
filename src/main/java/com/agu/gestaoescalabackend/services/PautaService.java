@@ -291,13 +291,13 @@ public class PautaService {
 
 				tarefaLoteRequest.setListaProcessosJudiciais(processoListRequest);
 
-				UsuarioResponsavelRequest usuarioResponsavel = new UsuarioResponsavelRequest(
-						tarefasLoteDTO.getLogin(), pautistaAtual.getNome().toUpperCase(),
-						tarefasLoteDTO.getSetorResponsavel());
+				// UsuarioResponsavelRequest usuarioResponsavel = new UsuarioResponsavelRequest(
+				// 		tarefasLoteDTO.getLogin(), pautistaAtual.getNome().toUpperCase(),
+				// 		tarefasLoteDTO.getSetorResponsavel());
 
-				UsuarioResponsavelResponse usuarioResponse = audienciasVisaoClient
-					.getUsuarioResponsavel(usuarioResponsavel);
-				tarefaLoteRequest.setUsuarioResponsavel(usuarioResponse.getId());
+				// UsuarioResponsavelResponse usuarioResponse = audienciasVisaoClient
+				// 	.getUsuarioResponsavel(usuarioResponsavel);
+				
 				// enviar requisição de tarefas
 				TarefaLoteResponse response = audienciasVisaoClient.insertTarefasLoteSapiens(tarefaLoteRequest);
 
@@ -305,7 +305,9 @@ public class PautaService {
 
 				updateTarefaPauta(StatusTarefa.CADASTRADA, listPautaEstadoTarefa);
 
+				
 				//atualização das variaveis de controle
+				tarefaLoteRequest.setUsuarioResponsavel(pautaAtual.getPautista().getIdSapiens());
 				pautistaAtual = pautaAtual.getPautista();
 				dataAtual = pautaAtual.getData();
 
@@ -330,6 +332,7 @@ public class PautaService {
 
 				processoListRequest.add(processoAtual);
 				listPautaEstadoTarefa.add(pautaAtual);
+				tarefaLoteRequest.setUsuarioResponsavel(pautaAtual.getPautista().getIdSapiens());
 			}
 
 		}
@@ -338,11 +341,14 @@ public class PautaService {
 		if (!processoListRequest.isEmpty()) {
 			tarefaLoteRequest.setListaProcessosJudiciais(processoListRequest);
 
-			UsuarioResponsavelRequest usuarioResponsavel = new UsuarioResponsavelRequest(
-					tarefasLoteDTO.getLogin(), pautistaAtual.getNome(), tarefasLoteDTO.getSetorResponsavel());
-			UsuarioResponsavelResponse usuarioResponse = audienciasVisaoClient
-					.getUsuarioResponsavel(usuarioResponsavel);
-			tarefaLoteRequest.setUsuarioResponsavel(usuarioResponse.getId());
+			// UsuarioResponsavelRequest usuarioResponsavel = new UsuarioResponsavelRequest(
+			// 		tarefasLoteDTO.getLogin(), pautistaAtual.getNome(), tarefasLoteDTO.getSetorResponsavel());
+			// UsuarioResponsavelResponse usuarioResponse = audienciasVisaoClient
+			// 		.getUsuarioResponsavel(usuarioResponsavel);
+			// tarefaLoteRequest.setUsuarioResponsavel(usuarioResponse.getId());
+
+			
+			tarefaLoteRequest.setUsuarioResponsavel(listPautaEstadoTarefa.get(0).getPautista().getIdSapiens());
 
 			// enviar requisição de tarefas
 			// o erro está aqui
