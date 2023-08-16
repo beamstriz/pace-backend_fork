@@ -104,9 +104,9 @@ public class PautaController {
 	}
 
 	@PostMapping("/cadastroTarefas")
-	public ResponseEntity<List<Pauta>> cadastroTarefas(@RequestBody InsertTarefasLoteDTO tarefasLoteDTO){
+	public ResponseEntity<List<PautaDto>> cadastroTarefas(@RequestBody InsertTarefasLoteDTO tarefasLoteDTO){
 		try {
-			List<Pauta> pautaList = pautaService.criarTarefasSapiens(tarefasLoteDTO);
+			List<PautaDto> pautaList = pautaService.criarTarefasSapiens(tarefasLoteDTO);
 
 			if (pautaList.isEmpty()) {
 				return ResponseEntity.noContent().build();

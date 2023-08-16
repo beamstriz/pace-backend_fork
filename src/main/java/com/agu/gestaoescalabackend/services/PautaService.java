@@ -247,7 +247,7 @@ public class PautaService {
 	}
 
 	@Transactional
-	public List<Pauta> criarTarefasSapiens(InsertTarefasLoteDTO tarefasLoteDTO) throws Exception {
+	public List<PautaDto> criarTarefasSapiens(InsertTarefasLoteDTO tarefasLoteDTO) throws Exception {
 		int page = 0;
 		int size = tarefasLoteDTO.getFiltroPautas().getSize();
 		List<Pauta> listProcessosNaoCadastrados = new ArrayList<Pauta>();
@@ -273,7 +273,9 @@ public class PautaService {
 			page++;
 		} while (page < pautas.getTotalPages());
 
-		return listProcessosNaoCadastrados;
+		return listProcessosNaoCadastrados.stream()
+				.map(Pauta::toDto)
+				.collect(Collectors.toList());
 	}
 
 	private List<Pauta> processarPautas(List<Pauta> pautas, InsertTarefasLoteDTO tarefasLoteDTO) throws Exception {
@@ -290,16 +292,11 @@ public class PautaService {
 					|| !pautaAtual.getData().equals(dataAtual)) {
 
 				tarefaLoteRequest.setListaProcessosJudiciais(processoListRequest);
-
-				// UsuarioResponsavelRequest usuarioResponsavel = new UsuarioResponsavelRequest(
-				// 		tarefasLoteDTO.getLogin(), pautistaAtual.getNome().toUpperCase(),
-				// 		tarefasLoteDTO.getSetorResponsavel());
-
-				// UsuarioResponsavelResponse usuarioResponse = audienciasVisaoClient
-				// 	.getUsuarioResponsavel(usuarioResponsavel);
 				
 				// enviar requisição de tarefas
 				TarefaLoteResponse response = audienciasVisaoClient.insertTarefasLoteSapiens(tarefaLoteRequest);
+
+				Thread.sleep(1000);
 
 				filtroProcessosNaoEncontrados(listPautaEstadoTarefa, response, listProcessosNaoCadastrados);
 
@@ -340,13 +337,6 @@ public class PautaService {
 		// Processa as últimas pautas (caso existam)
 		if (!processoListRequest.isEmpty()) {
 			tarefaLoteRequest.setListaProcessosJudiciais(processoListRequest);
-
-			// UsuarioResponsavelRequest usuarioResponsavel = new UsuarioResponsavelRequest(
-			// 		tarefasLoteDTO.getLogin(), pautistaAtual.getNome(), tarefasLoteDTO.getSetorResponsavel());
-			// UsuarioResponsavelResponse usuarioResponse = audienciasVisaoClient
-			// 		.getUsuarioResponsavel(usuarioResponsavel);
-			// tarefaLoteRequest.setUsuarioResponsavel(usuarioResponse.getId());
-
 			
 			tarefaLoteRequest.setUsuarioResponsavel(listPautaEstadoTarefa.get(0).getPautista().getIdSapiens());
 
