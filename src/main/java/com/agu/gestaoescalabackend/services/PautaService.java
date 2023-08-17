@@ -100,6 +100,9 @@ public class PautaService {
 	public Page<Pauta> findByFilters(String hora, String vara, String sala, Long pautista, String dataInicial,
 			String dataFinal, int page, int size, StatusTarefa statusTarefa) {
 		Pageable pageable;
+		if(statusTarefa == statusTarefa.TODOS){
+			statusTarefa = null;
+		}
 		if (page == 0 && size == 0) {
 			pageable = Pageable.unpaged();
 		} else {
@@ -263,7 +266,7 @@ public class PautaService {
 					tarefasLoteDTO.getFiltroPautas().getDataFinal(),
 					page,
 					size,
-					null);
+					tarefasLoteDTO.getFiltroPautas().getStatusTarefa());
 
 			if (!pautas.isEmpty()) {
 				List<Pauta> teste = processarPautas(pautas.getContent(), tarefasLoteDTO);

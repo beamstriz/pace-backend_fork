@@ -1,5 +1,7 @@
 package com.agu.gestaoescalabackend.dto;
 
+import com.agu.gestaoescalabackend.enums.StatusTarefa;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -12,6 +14,7 @@ public class FiltroDTO {
     private String vara;
     private String sala;
     private Long pautista;
+    private StatusTarefa statusTarefa;
     private int page;
     private int size;
 }
