@@ -30,7 +30,6 @@ public class Pautista implements Serializable, Comparable<Pautista> {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(unique = true)
     private Long idSapiens;
 
     @Column(unique = true)
